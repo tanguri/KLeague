@@ -31,39 +31,52 @@ for year in range(2, 11):
         season = soup.select('#searchResult > div.searchResult-group.wid-15p > p')[0].text
         team = soup.select('#searchResult > div:nth-child(5) > p')[0].text
 
-        name = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child(1) > td')
+        tr = soup.select('#tab-1 > div > div > table > tbody > tr')
 
-        # MySQL Connection 연결
-        conn = pymysql.connect(host='earlykross.cuopsz9nr7wp.ap-northeast-2.rds.amazonaws.com', user='ek',
-                               password='siattiger',
-                               db='earlykross', charset='utf8')
+        for j in range(len(tr)):
+            name = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child({}) > td'.format(j + 1))
+            # MySQL Connection 연결
+            conn = pymysql.connect(host='earlykross.cuopsz9nr7wp.ap-northeast-2.rds.amazonaws.com', user='ek',
+                                   password='siattiger',
+                                   db='earlykross', charset='utf8')
 
-        curs = conn.cursor()
+            curs = conn.cursor()
 
-        sql = 'select p_id from player where name=%s'
+            sql = 'select p_id from player where name=%s'
 
-        curs.execute(sql, name[0].text)
+            curs.execute(sql, name[0].text)
 
-        p_id = curs.fetchone()[0]
+            p_id = curs.fetchone()[0]
 
-        td = soup.select('#tab-1 > div > div > table > tbody > tr > td')
+            td = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child({}) > td'.format(j + 1))
+            played = td[2].text
+            played_in = td[3].text
+            played_out = td[4].text
+            inout_total = td[5].text
+            fh_goal = td[6].text
+            sh_goal = td[7].text
+            ot_goal = td[8].text
+            total_goal = td[9].text
+            assist = td[10].text
+            gk = td[11].text
+            ck = td[12].text
+            fo = td[13].text
+            os = td[15].text
+            st = td[16].text
+            yellow = td[21].text
+            red = td[22].text
 
-        played = td[2].text
-        played_in = td[3].text
-        played_out = td[4].text
-        inout_total = td[5].text
-        fh_goal = td[6].text
-        sh_goal = td[7].text
-        ot_goal = td[8].text
-        total_goal = td[9].text
-        assist = td[10].text
-        gk = td[11].text
-        ck = td[12].text
-        # 파울 어떤거 하는지 모른다
-        os = td[15].text
-        st = td[16].text
-        yellow = td[21].text
-        red = td[22].text
+            print(p_id, td[0].text)
 
-        print(played, played_in, played_out, inout_total, fh_goal, sh_goal, ot_goal, total_goal, assist, gk
-              , ck, os, st, yellow, red)
+            # SQL문 실행
+            sql = '''insert into player_record(p_id, played, played_in, played_out, inout_total, fh_goal, sh_goal, ot_goal, total_goal,
+             assist, gk, ck, fo, os, st, yellow, red, season) 
+             values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s)'''
+            curs.execute(sql, (
+                p_id, played, played_in, played_out, inout_total, fh_goal, sh_goal, ot_goal, total_goal, assist, gk, ck,
+                fo, os,
+                st, yellow, red, season))
+            conn.commit()
+
+            # Connection 닫기
+            conn.close()
