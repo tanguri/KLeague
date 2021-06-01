@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="MariaDB - ekuzo@earlykross.cuopsz9nr7wp.ap-northeast-2.rds.amazonaws.com" uuid="ce46906e-04ee-496b-afd0-ec547b2df01d">
+    <data-source source="LOCAL" name="MariaDB - earlykross@earlykross.cuopsz9nr7wp.ap-northeast-2.rds.amazonaws.com" uuid="404d6ddb-4b33-42ec-a0ea-714f611d7bc6">
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mariadb://earlykross.cuopsz9nr7wp.ap-northeast-2.rds.amazonaws.com:3306/ekuzo</jdbc-url>
+      <jdbc-url>jdbc:mariadb://earlykross.cuopsz9nr7wp.ap-northeast-2.rds.amazonaws.com:3306/earlykross</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
