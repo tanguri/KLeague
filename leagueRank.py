@@ -10,9 +10,15 @@ soup = BeautifulSoup(r.text, 'html.parser')
 
 tr = soup.select('#regularGroup_table > tr')
 
-# rank = soup.select('#regularGroup_table > tr > th > strong')
-# team_name = soup.select('#regularGroup_table > tr > td.tm > div > span')
-# game = soup.select('#regularGroup_table > tr:nth-child(1) > td:nth-child(3)')
-
-for t in tr:
-    print(t.text)
+rank = soup.select('#regularGroup_table > tr > th > strong')
+team_name = soup.select('#regularGroup_table > tr > td.tm > div > span')
+played = soup.select('#regularGroup_table > tr:nth-child(1) > td:nth-child(3)')
+points = soup.select('#regularGroup_table > tr:nth-child(1) > td:nth-child(4) > strong')
+won = soup.select('#regularGroup_table > tr:nth-child(1) > td:nth-child(5)')
+drown = soup.select('#regularGroup_table > tr:nth-child(1) > td:nth-child(6)')
+lost = soup.select('#regularGroup_table > tr:nth-child(1) > td:nth-child(6)')
+gf = soup.select('#regularGroup_table > tr:nth-child(1) > td:nth-child(8)')
+ga = soup.select('#regularGroup_table > tr:nth-child(1) > td:nth-child(9)')
+gd = soup.select('#regularGroup_table > tr:nth-child(1) > td:nth-child(10)')
+assist = soup.select('#regularGroup_table > tr:nth-child(1) > td:nth-child(11)')
+fo = soup.select('#regularGroup_table > tr:nth-child(1) > td.foul')
