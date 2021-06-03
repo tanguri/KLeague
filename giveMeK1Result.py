@@ -33,6 +33,9 @@ for year in range(2, 11):
         season = soup.select('#searchResult > div.searchResult-group.wid-15p > p')[0].text
         team = soup.select('#searchResult > div:nth-child(5) > p')[0].text
 
+        if team == '상주':
+            team = '김천'
+
         print(team)
 
         tr = soup.select('#tab-1 > div > div > table > tbody > tr')

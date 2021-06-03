@@ -33,6 +33,9 @@ for year in range(2, 11):
         season = soup.select('#searchResult > div.searchResult-group.wid-15p > p')[0].text
         team = soup.select('#searchResult > div:nth-child(5) > p')[0].text
 
+        if team == '상주':
+            team = '김천'
+
         print(team)
 
         tr = soup.select('#tab-1 > div > div > table > tbody > tr')
@@ -85,7 +88,8 @@ for year in range(2, 11):
                  assist, gk, ck, fo, os, st, yellow, red, season) 
                  values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s)'''
                 curs.execute(sql, (
-                    p_id, played, played_in, played_out, inout_total, fh_goal, sh_goal, ot_goal, total_goal, assist, gk, ck,
+                    p_id, played, played_in, played_out, inout_total, fh_goal, sh_goal, ot_goal, total_goal, assist, gk,
+                    ck,
                     fo, os,
                     st, yellow, red, season))
                 conn.commit()
