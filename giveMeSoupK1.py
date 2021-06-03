@@ -12,12 +12,12 @@ driver = Edge('driver/msedgedriver.exe')
 driver.get('https://portal.kleague.com/user/loginById.do?portalGuest=rstNE9zxjdkUC9kbUA08XQ==')
 
 # 선수 정보 페이지
-driver.execute_script('moveMainFrame("0073")')
+driver.execute_script('moveMainFrame("0111")')
 
 driver.find_element_by_xpath('//*[@id="meetYear"]')
 
 # 대회년도 별 돌리기
-for year in range(2, 11):
+for year in range(2, 32):
     driver.find_element_by_xpath('//*[@id="meetYear"]/option[{}]'.format(year)).click()
     time.sleep(1)
 
@@ -51,35 +51,36 @@ for year in range(2, 11):
 
             td = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child({}) > td'.format(j + 1))
 
-            name = td[0].text
-            played = td[2].text
-            played_in = td[3].text
-            played_out = td[4].text
-            inout_total = td[5].text
-            fh_goal = td[6].text
-            sh_goal = td[7].text
-            ot_goal = td[8].text
-            total_goal = td[9].text
-            assist = td[10].text
-            gk = td[11].text
-            ck = td[12].text
-            fo = td[13].text
-            os = td[15].text
-            st = td[16].text
-            yellow = td[21].text
-            red = td[22].text
+            if len(td) > 1:
+                name = td[0].text
+                played = td[2].text
+                played_in = td[3].text
+                played_out = td[4].text
+                inout_total = td[5].text
+                fh_goal = td[6].text
+                sh_goal = td[7].text
+                ot_goal = td[8].text
+                total_goal = td[9].text
+                assist = td[10].text
+                gk = td[11].text
+                ck = td[12].text
+                fo = td[13].text
+                os = td[15].text
+                st = td[16].text
+                yellow = td[21].text
+                red = td[22].text
 
-            print(td[0].text)
+                print(td[0].text)
 
-            # SQL문 실행
-            sql = '''insert into player_record_raw(name, club, played, played_in, played_out, inout_total, fh_goal, sh_goal, ot_goal, total_goal,
-             assist, gk, ck, fo, os, st, yellow, red, season)
-             values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s)'''
-            curs.execute(sql, (
-                name, team, played, played_in, played_out, inout_total, fh_goal, sh_goal, ot_goal, total_goal, assist,
-                gk,
-                ck, fo, os, st, yellow, red, season))
-            conn.commit()
+                # SQL문 실행
+                sql = '''insert into player_record_raw(name, club, played, played_in, played_out, inout_total, fh_goal, sh_goal, ot_goal, total_goal,
+                 assist, gk, ck, fo, os, st, yellow, red, season)
+                 values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s)'''
+                curs.execute(sql, (
+                    name, team, played, played_in, played_out, inout_total, fh_goal, sh_goal, ot_goal, total_goal, assist,
+                    gk,
+                    ck, fo, os, st, yellow, red, season))
+                conn.commit()
 
-            # Connection 닫기
-            conn.close()
+                # Connection 닫기
+                conn.close()
