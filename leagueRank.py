@@ -23,3 +23,4 @@ gd = soup.select('#regularGroup_table > tr > td:nth-child(10)')
 assist = soup.select('#regularGroup_table > tr > td:nth-child(11)')
 fo = soup.select('#regularGroup_table > tr > td:nth-child(12)')
 
+print()
