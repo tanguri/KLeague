@@ -1,0 +1,3813 @@
+<html><head>
+<meta charset="utf-8"/>
+<meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+<link href="/images/portal/favicon.ico" rel="shortcut icon"/>
+<link href="/css/portal/reset.css" rel="stylesheet" type="text/css"/>
+<link href="/css/portal/font.css" rel="stylesheet" type="text/css"/>
+<link href="/css/portal/common.css" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Orbitron" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css?family=Electrolize|Orbitron" rel="stylesheet"/>
+<link href="/resources/jquery-ui-1.12.1/jquery-ui.min.css" rel="stylesheet"/>
+<script src="/js/jquery-1.12.4.js"></script>
+<script src="/js/jquery-migrate-1.4.1.js"></script>
+<script src="/resources/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+<script src="/resources/jquery-ui-1.12.1/datepicker-ko.js"></script>
+<script src="/js/jquery.cookie.js"></script>
+<script charset="utf-8" src="/js/common.js"></script>
+<!-- 차트 js -->
+<script src="/resources/ibchart/highcharts/highcharts.js" type="text/javascript"></script>
+<script src="/resources/ibchart/highcharts/highcharts-more.js" type="text/javascript"></script>
+<script src="/resources/ibchart/ibleaders.js" type="text/javascript"></script>
+<script src="/resources/ibchart/ibchart.js" type="text/javascript"></script>
+<script src="/resources/ibchart/ibchartinfo.js" type="text/javascript"></script>
+<script src="/resources/floatThead/dist/jquery.floatThead.js"></script>
+<script type="text/javascript">
+var _bBtnQty = "Y";
+var _bBtnExl = "N";
+var _bBtnSave = "N";
+var _bBtnAdd = "N";
+var _bBtnDel = "N";
+var _bBtnPrt = "N";
+var _bBtnClr = "N";
+var _bBtnDwn = "N";
+
+
+	function fn_teamInfo(_meetSeq, _teamId) {
+		if($("#tmpFrm").length>=1){
+			$("#tmpFrm").remove();
+		}
+		
+		var html="<form name='tmpFrm' id='tmpFrm' method='post' commandName='MneuVO'>";
+			html+="<input type='hidden' name='selectedMenuCd' value='0309'>";
+			html+="<input type='hidden' name='selectMeet' value='" + _meetSeq + "'>";
+			html+="<input type='hidden' name='selectTeam' value='" + _teamId + "'>";
+			html+="</form>";
+			
+		$("body").append(html);
+	
+		var forms = document.getElementById("tmpFrm");
+	
+		forms.method = 'POST';
+		forms.action = "/mainFrame.do";
+	
+		forms.submit();
+	}
+
+
+	var arrTodayNews = [];
+	
+	$(function(){
+		$(document).tooltip();
+		$("a.show").click(function(){
+			$("a.show").toggleClass("active");
+			$("div.sub-left").toggleClass("active");
+			$("div.sub-right").toggleClass("active");
+			$("div.sub-right-menu").toggleClass("active");
+			$("div.sub-right-team").toggleClass("active");
+			
+			//차트 크기 관련 스크립트			
+			if($("a.show").hasClass("active") === true) {
+				$("canvas").width(1000).height(400);
+				}else{
+					$("canvas").width(800).height(400);	
+				}
+
+			if($("#btnSearch").hasClass("btn-searchForm")) {
+				$("#btnSearch").trigger("click");
+			}
+		});
+	
+		// 클럽별 관중 Popup 호출
+		$("#btnTeamCrowd").click(function(){
+			var seq=1
+			var year = new Date().getFullYear()
+			
+			gfn_openTeamCrowdPopup(year,seq);
+		});
+		
+		// 오늘의 경기 Popup 호출
+ 		$("#btnTodaysMatch").click(function(){
+			gfn_openTodayGamesPopup();
+		});
+		
+		// 경기도움말 Popup 호출
+		$("#btnBumRye").click(function(){
+			gfn_openKleagueHelpPopup();
+		});
+		
+		//사이트맵
+		$("#btnSitemap").click(function(){
+			var openPopupTmp = function(url, title, width, height, scroll){	
+				var xPos = (window.screen.availWidth - width)/2;
+				var yPos = (window.screen.availHeight - height)/2;
+
+				var win = window.open(url,title,'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars='+scroll+',toolbar=no,resizable=no,copyhistory=no,width='+width+',height='+height+',left='+ xPos +',top='+ yPos+'\'');
+				return win;
+			}
+			var win = openPopupTmp ("/sitemap/sitemap.do?selectedMenuCd=0073", "pop_sitemap", 1000, 720, "yes");
+			win.focus();
+		});
+	});
+
+	function moveMainFrame(menuCd)
+	{
+		$("#loading_goal").removeClass("hidden");
+		var forms = document.getElementById("moveMenuForm");
+
+		forms.method = 'POST';
+		forms.action = '/mainFrame.do';
+
+		if(menuCd=='0011' || menuCd=='0012'){
+			var gameEndYn = checkGameEndYn();
+			if(gameEndYn=='N'){
+				menuCd='0300';
+			}
+		}
+		forms.selectedMenuCd.value = menuCd;
+		
+		forms.submit();
+	}
+	
+	function logoutTmp(){
+		if(confirm("로그아웃 하시겠습니까?")){
+			location.replace("/user/service/logout.do");
+		}
+	}
+
+	 function openUserInfoTmp(){
+		var openPopupTmp = function(url, title, width, height, scroll){	
+			var xPos = (window.screen.availWidth - width)/2;
+			var yPos = (window.screen.availHeight - height)/2;
+
+			var win = window.open(url,title,'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars='+scroll+',toolbar=no,resizable=no,copyhistory=no,width='+width+',height='+height+',left='+ xPos +',top='+ yPos+'\'');
+			return win;
+		}
+		var win = openPopupTmp ("/user/service/userInfoDetail.do", "pop_find_id", 920, 800, "yes");
+		win.focus();
+	}
+	
+	// 경기속보 Banner Index 및 초기설정
+	var todayNewsIndex = 0; 
+	
+	// 경기속보 Banner
+	function todayNewsChange() { 
+		if(todayNewsIndex < arrTodayNews.length - 1) 
+			todayNewsIndex++; 
+		else 
+			todayNewsIndex = 0; 
+		
+
+		if(document.all.todayNewsArea != null) {
+			document.all.todayNewsArea.innerHTML = "<p>" + arrTodayNews[todayNewsIndex].news + "</p>";
+		}
+	}
+	
+	if(arrTodayNews.length > 0) {
+		// 경기속보 Banner 변경시간 설정
+		setInterval("todayNewsChange()", 3000);
+	}
+	
+</script>
+<title>K LEAGUE PORTAL</title>
+<style>
+.ui-tooltip {
+    white-space: pre-line;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<form action="/mainFrame.do" id="moveMenuForm" method="post" name="moveMenuForm"><input name="selectedMenuCd" type="hidden"/>
+</form><!-- 헤더 레이아웃 -->
+<script src="/js/common.js" type="text/javascript"></script>
+<script>
+var gwUseYn="N";
+
+var boardMenuInfoJson = {};
+$(document).ready(function(){
+	$('.btn-user-closed').click(function(){
+		$('.mainHeigth01').removeClass('on');
+		$('.btn-user-open').addClass('on');
+		$.setCookie('gwInfoWindowOpen', 'N',{expire: '-1',path: '/'})
+		//쿠키값 추가(Y값걸정)
+	});
+
+	$('.btn-user-open').click(function(){
+		$('.mainHeigth01').addClass('on');
+		$('.btn-user-open').removeClass('on');
+		$.setCookie('gwInfoWindowOpen', 'Y',{expire: '-1',path: '/'})
+	});
+	
+	 // 사용자 정보 게시판
+	$('div.main-user-tabTree a').click(function(){
+		var tab_id = $(this).attr('data-tab');
+
+		$('div.main-user-tabTree a').removeClass('active');
+		$('.tab-content02').removeClass('current');
+
+		$(this).addClass('active');
+		$("#"+tab_id).addClass('current');
+	});
+	 
+	 //쿠키에 따른 분기처리
+ 	var windowGubun = $.getCookie('gwInfoWindowOpen');
+
+	if (gwUseYn=='Y' && windowGubun!='Y'){
+		$('.mainHeigth01').removeClass('on');
+		$('.btn-user-open').addClass('on');
+	}else{
+		$('.mainHeigth01').addClass('on');
+		$('.btn-user-open').removeClass('on');
+	}
+	 
+	$(document).on("click", ".btn-more-style", function(){
+		console.log("더보기 클릭");
+		if($(this).attr("data-menuCd")){
+			var menuCd = $(this).attr("data-menuCd");
+			
+			if(checkAuthByMenuId(menuCd)=='N'){
+				alert("접근 권한이 없습니다.");
+				return false;
+			}
+			moveMainFrame(menuCd);
+			
+		}else{
+			getSSOVal=function(menuId){
+				var obj = {};
+				$.ajax({
+					url : "/getSSOValWithActionUrlForBoard.do",
+					data:{
+						menuId:menuId
+					},
+					dataType:"json",
+					type:"POST",
+					async:false,
+					success:function(data){
+						if(data.result){
+							obj = data.result;
+						}else{
+							obj = {};
+						}
+					},
+					error:function(){
+						obj = {};
+					}
+				});
+				
+				return obj;
+			};
+			var menuId = $(this).attr("data-menuId");
+			var ssoObj = getSSOVal(menuId);
+			//console.log(ssoObj);
+			if(ssoObj.gwUseYn != 'Y'){
+				alert("사용 권한이 없습니다.");
+				return;
+			}
+			if(ssoObj.url){
+				var win = window.open('' , '_gwPop');
+				if($("#gwForm").length>=1){
+					$("#gwForm").remove();
+				}
+				
+				var html="<form method='post' name='gwForm' id='gwForm'>\n";
+				if(ssoObj.key){
+					html+="<input type='hidden' name='key' value='"+ssoObj.key+"'>\n";
+				}
+				if(ssoObj.value){
+					html+="<input type='hidden' name='value' value='"+ssoObj.value+"'>\n";
+				}
+				if(ssoObj.actionUrl){
+					html+="<input type='hidden' name='actionUrl' value='"+ssoObj.actionUrl+"'>\n";
+				}
+				html+="</form'>\n";
+				
+				$("body").append(html);
+				
+				$("#gwForm").attr("action", ssoObj.url);
+				$("#gwForm").attr("target", "_gwPop");
+				$("#gwForm").submit();
+				
+				win.focus();
+			}
+			
+			/* var hostAddr = '';
+			var tokenKey = '';
+			var tokenValue = '';
+			var gwUrl = '';
+			
+			var gwBoardMoreActionUrl = '';
+			
+			var menuId = $(this).attr("data-menuId");
+			
+			var boardRetVal = replaceAllVals(gwBoardMoreActionUrl, ["@menuId@"], [menuId]);
+		
+			//location.href = ssoUrl;
+			var win = window.open('' , '_gwPop');
+			if($("#gwForm").length>=1){
+				$("#gwForm").remove();
+			}
+
+			var html="<form method='post' name='gwForm' id='gwForm'>\n";
+			html+="<input type='hidden' name='key' value='"+tokenKey+"'/>\n";
+			html+="<input type='hidden' name='value' value='"+tokenValue+"'>\n";
+			html+="<input type='hidden' name='actionUrl' value='"+boardRetVal+"'>\n";
+			html+="</form'>\n";
+			
+			
+			$("body").append(html);
+			
+			$("#gwForm").attr("action", hostAddr+gwUrl);
+			$("#gwForm").attr("target", "_gwPop");
+			$("#gwForm").submit();
+			
+			win.focus();
+			
+			$("#gwForm").remove(); */
+		}
+		
+		
+	});
+	
+	$(document).on("click", ".showGwBoardDetail", function(){
+		getSSOVal=function(menuId, articleId){
+			var obj = {};
+			$.ajax({
+				url : "/getSSOValWithActionUrlForBoard.do",
+				data:{
+					menuId:menuId,
+					articleId:articleId
+				},
+				dataType:"json",
+				type:"POST",
+				async:false,
+				success:function(data){
+					if(data.result){
+						obj = data.result;
+					}else{
+						obj = {};
+					}
+				},
+				error:function(){
+					obj = {};
+				}
+			});
+			
+			return obj;
+		};
+		var menuId = $(this).attr("data-menuId");
+		var articleId = $(this).attr("data-articleId");
+		var ssoObj = getSSOVal(menuId, articleId);
+		//console.log(ssoObj);
+
+		if(ssoObj.gwUseYn != 'Y'){
+			alert("사용 권한이 없습니다.");
+			return;
+		}
+		if(ssoObj.url){
+			var win = window.open('' , '_gwPop');
+			if($("#gwForm").length>=1){
+				$("#gwForm").remove();
+			}
+			//console.log(ssoObj);
+			var html="<form method='post' name='gwForm' id='gwForm'>\n";
+			if(ssoObj.key){
+				html+="<input type='hidden' name='key' value='"+ssoObj.key+"'>\n";
+			}
+			if(ssoObj.value){
+				html+="<input type='hidden' name='value' value='"+ssoObj.value+"'>\n";
+			}
+			if(ssoObj.actionUrl){
+				html+="<input type='hidden' name='returnUrl' value='"+ssoObj.actionUrl+"'>\n";
+			}
+			html+="</form'>\n";
+			
+			$("body").append(html);
+			
+			$("#gwForm").attr("action", ssoObj.url);
+			$("#gwForm").attr("target", "_gwPop");
+			$("#gwForm").submit();
+			
+			win.focus();
+		}
+		/* var hostAddr = '';
+		var tokenKey = '';
+		var tokenValue = '';
+		var gwUrl = '';
+		
+		var gwBoardReturnUrl = '';
+		
+		var menuId = $(this).attr("data-menuId");
+		var articleId = $(this).attr("data-articleId");
+		
+		var boardRetVal = replaceAllVals(gwBoardReturnUrl, ["@menuId@","@articleId@"], [menuId, articleId]);
+		
+		//location.href = ssoUrl;
+		var win = window.open('' , '_gwPop');
+		if($("#gwForm").length>=1){
+			$("#gwForm").remove();
+		}
+		
+		var html="<form method='post' name='gwForm' id='gwForm'>\n";
+		html+="<input type='hidden' name='key' value='"+tokenKey+"'/>\n";
+		html+="<input type='hidden' name='value' value='"+tokenValue+"'>\n";
+		html+="<input type='hidden' name='returnUrl' value='"+boardRetVal+"'>\n";
+		html+="</form'>\n";
+		
+		$("body").append(html);
+		
+		$("#gwForm").attr("action", hostAddr+gwUrl);
+		$("#gwForm").attr("target", "_gwPop");
+		$("#gwForm").submit();
+		
+		win.focus();
+		
+		$("#gwForm").remove(); */
+		
+	});
+	
+	$(document).on("click", ".showYmgdBoardDetailTop", function(){
+		var menuCd = $(this).attr("data-menuCd");
+		
+		if(checkAuthByMenuId(menuCd)=='N'){
+			alert("접근 권한이 없습니다.");
+			return false;
+		}
+		
+		var cmsCd = $(this).attr("data-cmsCd");
+		var ntNo = $(this).attr("data-ntNo");
+		
+		if($("#ymgdBoardFrm").length<=1){
+			$("#ymgdBoardFrm").remove();
+		}
+		
+		var html="<form method='post' name='ymgdBoardFrm' id='ymgdBoardFrm'>\n";
+		html+="<input type='hidden' name='selectedMenuCd' value='"+menuCd+"'/>\n";
+		html+="<input type='hidden' name='cmsCd' value='"+cmsCd+"'>\n";
+		html+="<input type='hidden' name='ntNo' value='"+ntNo+"'>\n";
+		html+="</form'>\n";
+		
+		$("body").append(html);
+		
+		$("#ymgdBoardFrm").attr("action", "/mainFrame.do");
+		
+		$("#ymgdBoardFrm").submit();
+		
+		
+	});
+	
+	$(document).on("click", ".showGwBoardMore", function(){
+		//var tp = $(this).attr("data-tp");
+		
+		var menuCd = "";//viewInfoMapJson[tp].menuCd;
+		var menuId = $(this).attr("data-menuId"); //viewInfoMapJson[tp].menuId;
+		
+		$.each(boardMenuInfoJson, function(i, d) {
+			if(d.menuId == menuId) {
+				menuCd = d.menuCd;
+			}
+		});
+		
+		var html="<form name='tmpFrm' id='tmpFrm' method='post'>";
+			html+="<input type='hidden' name='selectedMenuCd' value='"+menuCd+"'>";
+			html+="<input type='hidden' name='menuId' value='" + menuId + "'>";
+			html+="</form>";
+			
+		$("body").append(html);
+
+		var forms = document.getElementById("tmpFrm");
+	
+		$("#tmpFrm").attr("method", "post").attr("action", "/mainFrame.do").submit();
+		
+	});
+	
+	/* $(document).on("click", ".showGwBoardDetail", function(){
+		//var tp = $(this).attr("data-tp");
+		
+		var menuCd = "";//viewInfoMapJson[tp].menuCd;
+		var menuId = $(this).attr("data-menuId"); //viewInfoMapJson[tp].menuId;
+		
+		$.each(boardMenuInfoJson, function(i, d) {
+			if(d.menuId == menuId) {
+				menuCd = d.menuCd;
+			}
+		});
+		
+		var articleId = $(this).attr("data-articleId");
+		
+		if($("#tmpFrm").length>=1){
+			$("#tmpFrm").remove();
+		}
+		
+		var html="<form name='tmpFrm' id='tmpFrm' method='post'>";
+			html+="<input type='hidden' name='selectedMenuCd' value='"+menuCd+"'>";
+			html+="<input type='hidden' name='menuId' value='" + menuId + "'>";
+			html+="<input type='hidden' name='articleId' value='" + articleId + "'>";
+			html+="</form>";
+			
+		$("body").append(html);
+
+		var forms = document.getElementById("tmpFrm");
+	
+		$("#tmpFrm").attr("method", "post").attr("action", "/mainFrame.do").submit();
+		
+	}); */
+	
+	$(document).on("click", ".atagChgUserInfo", function(){
+		openUserInfoTmp();
+		return false;
+	});
+});
+
+function logoutTmp()
+{
+	if(confirm("로그아웃 하시겠습니까?"))
+	{
+		location.replace("/user/service/logout.do");
+	}
+}
+
+function openUserInfoTmp()
+{
+	var openPopupTmp = function(url, title, width, height, scroll)
+	{	
+		var xPos = (window.screen.availWidth - width)/2;
+		var yPos = (window.screen.availHeight - height)/2;
+
+		var optionStr = 'toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars='+scroll+',toolbar=no,resizable=no,copyhistory=no,width='+width+',height='+height+',left='+ xPos +',top='+ yPos+'\'';
+		
+		var win = window.open(url,title, optionStr);
+	
+		return win;
+	}
+	
+	var win = openPopupTmp ("/user/service/userInfoDetail.do", "pop_find_id", 920, 800, "yes");
+	
+	win.focus();
+}
+
+
+function moveGroupwareWithSSO()
+{
+	getSSOVal=function(){
+		var obj = {};
+		$.ajax({
+			url : "/getSSOVal.do",
+			dataType:"json",
+			type:"POST",
+			async:false,
+			success:function(data){
+				if(data.result){
+					obj = data.result;
+				}else{
+					obj = {};
+				}
+			},
+			error:function(){
+				obj = {};
+			}
+		});
+		
+		return obj;
+	};
+	
+	var ssoObj = getSSOVal();
+
+	if(ssoObj.gwUseYn != 'Y'){
+		alert("그룹웨어를 접근할 수 없습니다.");
+		return;
+	}
+	if(ssoObj.url){
+		var win = window.open('' , '_gwPop');
+		if($("#gwForm").length>=1){
+			$("#gwForm").remove();
+		}
+		
+		var html="<form method='post' name='gwForm' id='gwForm'>\n";
+		if(ssoObj.key){
+			html+="<input type='hidden' name='key' value='"+ssoObj.key+"'>\n";
+		}
+		if(ssoObj.value){
+			html+="<input type='hidden' name='value' value='"+ssoObj.value+"'>\n";
+		}
+		html+="</form'>\n";
+		
+		$("body").append(html);
+		
+		$("#gwForm").attr("action", ssoObj.url);
+		$("#gwForm").attr("target", "_gwPop");
+		$("#gwForm").submit();
+		
+		win.focus();
+		
+		$("#gwForm").remove();
+	}
+}
+
+function moveGroupwareWithSSOAndActionTp(actionTp)
+{
+	getSSOVal=function(actionTp1){
+		var obj = {};
+		$.ajax({
+			url : "/getSSOValWithActionUrl.do",
+			data:{actionTp:actionTp1},
+			dataType:"json",
+			type:"POST",
+			async:false,
+			success:function(data){
+				if(data.result){
+					obj = data.result;
+				}else{
+					obj = {};
+				}
+			},
+			error:function(){
+				obj = {};
+			}
+		});
+		
+		return obj;
+	};
+	
+	var ssoObj = getSSOVal(actionTp);
+
+	if(ssoObj.gwUseYn != 'Y'){
+		alert("그룹웨어를 접근할 수 없습니다.");
+		return;
+	}
+	if(ssoObj.url){
+		var win = window.open('' , '_gwPop');
+		if($("#gwForm").length>=1){
+			$("#gwForm").remove();
+		}
+		
+		var html="<form method='post' name='gwForm' id='gwForm'>\n";
+		if(ssoObj.key){
+			html+="<input type='hidden' name='key' value='"+ssoObj.key+"'>\n";
+		}
+		if(ssoObj.value){
+			html+="<input type='hidden' name='value' value='"+ssoObj.value+"'>\n";
+		}
+		if(ssoObj.actionUrl){
+			html+="<input type='hidden' name='actionUrl' value='"+ssoObj.actionUrl+"'>\n";
+		}
+		html+="</form'>\n";
+		
+		$("body").append(html);
+		
+		$("#gwForm").attr("action", ssoObj.url);
+		$("#gwForm").attr("target", "_gwPop");
+		$("#gwForm").submit();
+		
+		win.focus();
+		
+		$("#gwForm").remove();
+	}
+}
+</script>
+<div class="header">
+<div class="col-width">
+<div class="headerLeft">
+<div class="logo"><h1><a href="/mainFrame.do">K LEAGUE PORTAL</a></h1></div>
+<div class="main-menu">
+<ul>
+<!-- 선택된 1depth 메뉴 -->
+<li><a class="active">데이터센터</a></li>
+<li><a href="javascript:moveMainFrame('0213');">리그운영</a></li>
+</ul>
+</div>
+</div>
+<div class="headerRight">
+<div class="topBg"></div>
+<ul class="top-ul">
+<li class="ml20">
+</li>
+<li>
+</li>
+</ul>
+<div class="topBg-right"></div>
+</div>
+</div>
+</div>
+<div class="headerLine"></div>
+<!-- TOP 텍스트&오늘의 경기 -->
+<div class="headtext">
+<div class="col-width">
+<div class="headtextLeft">
+<div class="today-calendar"><!-- CalenderLayout --></div>
+</div>
+<div class="headtextCenter" id="todayNewsArea"><p></p></div>
+<div class="headtextRight">
+<!-- <div class="today-game taC">
+					<span class="img-txtToday vaM">오늘의 경기</span>
+					<a class="icon-btnHid ml10"></a>
+					<a class="icon-btnHelp ml10"></a>
+				</div> -->
+<a href="#" id="btnTeamCrowd">
+<div class="headtextRight-txt">
+							클럽별 관중
+						</div>
+<div class="headtextRight-btn">
+<div class="icon-btnhead"></div>
+</div>
+</a>
+</div>
+<div class="headtextRight-device">
+</div>
+<div class="headtextRight-box">
+<a href="#" id="btnTodaysMatch">
+<div class="headtextRight-txt">
+							오늘의 경기
+						</div>
+<div class="headtextRight-btn">
+<div class="icon-btnhead"></div>
+</div>
+</a>
+</div>
+<div class="headtextRight-device">
+</div>
+<div class="headtextRight-box">
+<a href="#" id="btnBumRye">
+<div class="headtextRight-txt">
+							범례
+						</div>
+<div class="headtextRight-btn">
+<div class="icon-btnhead"></div>
+</div>
+</a>
+</div>
+<div class="headtextRight-device">
+</div>
+<div class="headtextRight-box">
+<a href="#" id="btnSitemap">
+<div class="headtextRight-txt">
+							사이트맵
+						</div>
+<div class="headtextRight-btn">
+<div class="icon-btnhead"></div>
+</div>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- // TOP 비쥬얼 이미지 // -->
+<div class="headbgimage"><div class="img-sub-bg01"></div></div>
+<!-- // 2depth 메뉴 // -->
+<div class="sub-menu">
+<div class="two-depthMenu col-width">
+<ul>
+<li><a href="javascript:moveMainFrame('0012');">매치센터</a></li>
+<li><a href="javascript:moveMainFrame('0015');">종합검색</a></li>
+<li><a href="javascript:moveMainFrame('0409');">클럽</a></li>
+<li><a href="javascript:moveMainFrame('0410');">선수</a></li>
+<li><a class="active">공식기록</a></li>
+<li><a href="javascript:moveMainFrame('0194');">부가기록</a></li>
+</ul>
+</div>
+</div>
+<!-- CONTENTS 전체 레이아웃 -->
+<div class="content-area col-width">
+<!-- NAVIGATION -->
+<div class="navigation">
+<p>
+<span class="pr5"><img src="/images/portal/img-nav-home.png"/></span>
+<img src="/images/portal/img-nav-arrowR.gif"/>
+<span class="pl5 pr5">포탈서비스</span>
+<img src="/images/portal/img-nav-arrowR.gif"/>
+<span class="pl5 pr5">데이터센터</span>
+<img src="/images/portal/img-nav-arrowR.gif"/>
+<span class="pl5 pr5">공식기록</span>
+<img src="/images/portal/img-nav-arrowR.gif"/>
+<span class="pl5 pr5">기록실</span>
+<img src="/images/portal/img-nav-arrowR.gif"/>
+<span class="pl5 pr5">K리그 2 기록</span>
+<img src="/images/portal/img-nav-arrowR.gif"/>
+<span class="pl5 pr5">구단별 개인기록</span>
+</p>
+</div>
+<div class="sub-area">
+<!-- 좌측 전체 레이아웃 (콘텐츠)-->
+<div class="sub-left">
+<div class="search-area" id="contentsLayer">
+<!-- Start -->
+<script type="text/javascript">
+				$(document).ready(function(){
+					if(!$('.table').hasClass("table-overflowAuto") && !$('.table').hasClass("notFloat")) {
+						$('.table').floatThead({
+							position: 'absolute'
+						});
+					};
+					
+						function rowspan(){
+						   $("#target-table").rowspanizer({
+							    cols : [0],
+							    vertical_align: "middle"
+						   });
+						   
+					 	   $("#target-table-stop").rowspanizer({
+							    cols : [0,1],
+							    vertical_align: "middle"
+						   }); 
+						   
+						   $("#target-table-play-record").rowspanizer({
+							    cols : [0,1,3],
+							    vertical_align: "top"
+						   });
+						   
+						   $("#target-table-mom").rowspanizer({
+							    cols : [0,2],
+							    vertical_align: "top"
+						   });
+						   
+						   
+						   $("#target-table-round11").rowspanizer({
+							    cols : [0],
+							    vertical_align: "middle"
+						   });
+						   
+						   $("#target-table-coach").rowspanizer({
+							    cols : [0,1,2],
+							    vertical_align: "middle"
+						   });
+						   
+						   $("#target-table-team-rank").rowspanizer({
+							    cols : [1,2],
+							    vertical_align: "middle"
+						   });
+						   $("#target-table-maxMin").rowspanizer({
+							    cols : [0,2,3],
+							    vertical_align: "top"
+						   });
+							$.each($(".target-table-coach-01"), function() {
+								$(this).rowspanizer({
+								    cols : [0],
+								    vertical_align: "middle"
+							   });
+							})
+					   }
+					rowspan();
+					});
+				</script>
+<div id="commonview"><script type="text/javascript">
+				$(document).ready(function(){
+					if(!$('.table').hasClass("table-overflowAuto") && !$('.table').hasClass("notFloat")) {
+						$('.table').floatThead({
+							position: 'absolute'
+						});
+					};
+					
+						function rowspan(){
+						   $("#target-table").rowspanizer({
+							    cols : [0],
+							    vertical_align: "middle"
+						   });
+						   
+					 	   $("#target-table-stop").rowspanizer({
+							    cols : [0,1],
+							    vertical_align: "middle"
+						   }); 
+						   
+						   $("#target-table-play-record").rowspanizer({
+							    cols : [0,1,3],
+							    vertical_align: "top"
+						   });
+						   
+						   $("#target-table-mom").rowspanizer({
+							    cols : [0,2],
+							    vertical_align: "top"
+						   });
+						   
+						   
+						   $("#target-table-round11").rowspanizer({
+							    cols : [0],
+							    vertical_align: "middle"
+						   });
+						   
+						   $("#target-table-coach").rowspanizer({
+							    cols : [0,1,2],
+							    vertical_align: "middle"
+						   });
+						   
+						   $("#target-table-team-rank").rowspanizer({
+							    cols : [1,2],
+							    vertical_align: "middle"
+						   });
+						   $("#target-table-maxMin").rowspanizer({
+							    cols : [0,2,3],
+							    vertical_align: "top"
+						   });
+							$.each($(".target-table-coach-01"), function() {
+								$(this).rowspanizer({
+								    cols : [0],
+								    vertical_align: "middle"
+							   });
+							})
+					   }
+					rowspan();
+					});
+				</script>
+<div id="commonview">
+<!-- 타이틀, 메뉴 설명, 검색폼 레이아웃  -->
+<script src="/js/common.js" type="text/javascript"></script>
+<script type="text/javascript">
+var commonvo={"menuVo":{"menuCd":"0073","menuNm":"구단별 개인기록","parentMenuCd":"0059","searchFormKey":"searchDate,meetYear,meetName,gameType,teamId","searchDataKey":"meetName, gameType, teamId, inputVal, leagueId","menuUrl":"/common/main/commonView.do","uriPath":"data/offi/","chartYn":"N","btnQry":"Y","btnExl":"N","btnSave":"N","btnAdd":"N","btnDel":"N","btnPrt":"N","btnClr":"N","btnDwn":"N","searchChildrenYn":"Y","menuTypeCd":"005","helpFileSize":0,"regUserId":"platform","updUserId":"platform","searchCondition":"","searchKeyword":""},"searchVo":{"searchDate":"2021/06/08","searchDateUi":"Y","meetYear":[{"Meet_Year":"[모든 자료]"},{"Meet_Year":"2021"},{"Meet_Year":"2020"},{"Meet_Year":"2019"},{"Meet_Year":"2018"},{"Meet_Year":"2017"},{"Meet_Year":"2016"},{"Meet_Year":"2015"},{"Meet_Year":"2014"},{"Meet_Year":"2013"}],"selectMeetYear":"2021","meetYearUi":"Y","meetName":[{"Meet_Seq":"0","Meet_Name":"[모든 자료]"},{"Meet_Seq":"2","Meet_Name":"하나원큐 K리그2 2021"}],"selectmeetName":{"Meet_Seq":"2","Meet_Name":"하나원큐 K리그2 2021"},"meetNameUi":"Y","meetNameChange":"N","gameType":[{"game_type":"0","game_type_name":"[모든 자료]"},{"game_type":"1","game_type_name":"일반"}],"selectgameType":{"game_type":"0","game_type_name":"[모든 자료]"},"gameTypeUi":"Y","teamId":[{"Team_id":"K20","Team_S_Name":"경남"},{"Team_id":"K35","Team_S_Name":"김천"},{"Team_id":"K10","Team_S_Name":"대전"},{"Team_id":"K06","Team_S_Name":"부산"},{"Team_id":"K26","Team_S_Name":"부천"},{"Team_id":"K31","Team_S_Name":"서울E"},{"Team_id":"K32","Team_S_Name":"안산"},{"Team_id":"K27","Team_S_Name":"안양"},{"Team_id":"K07","Team_S_Name":"전남"},{"Team_id":"K34","Team_S_Name":"충남아산"}],"selectteamId":{"Team_id":"K27","Team_S_Name":"안양"},"teamIdUi":"Y","checkForSum":"0","maxMinFlag":"1","leagueId":[{"com_code":"2","code_name":"K리그1","code_class":"K League 1"},{"com_code":"3","code_name":"K리그2","code_class":"K League 2"},{"com_code":"1","code_name":"K리그 BC(~2012)","code_class":"K League BC(~2012)"},{"com_code":"5","code_name":"승강PO","code_class":"PlayOff"},{"com_code":"7","code_name":"최상위 리그 ","code_class":"Top League"}],"searchFormKey":["searchDate","meetYear","meetName","gameType","teamId"]},"menuCodeVo":{"menuCd":"0073","menuTypeCode":"005","meetSeq":"2","meetGameType":"0","leagueId":"3","meetYear":"2021","workCode":"S","seasonFlag":"1","userId":"platform"}};
+var menuTypeCd=commonvo.menuVo.menuTypeCd;
+
+//공통 Ajax 함수
+function getResource(commonvostr){
+	
+	$("#taStr").val(commonvostr);
+	gfn_transaction({
+		url:"/common/search/change.do",
+		type: "post",
+		async: false,
+		data: {commonvostr:$("#taStr").val()},
+		dataType:'text',
+		success:function(rs){
+				//console.log(rs);
+				$("#commonview").html(rs);
+				
+    	},
+    	error:function(request,status,error){
+    		console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+           }
+		}); // $.ajax
+}
+
+function searchPlayer(playerId,playerNm){
+	
+	commonvo.searchVo.playerNm = playerNm;
+	commonvo.searchVo.playerId = playerId;
+	$("#playerNm").val(playerNm);
+	$("#playerId").val(playerId);
+	var commonvostr = JSON.stringify(commonvo);
+	getResource(commonvostr);
+	
+}
+
+function searchCoach(playerId,playerNm,popupCode){
+	
+	/* console.log("팝업코드"+popupCode) */
+	
+	if(popupCode =='1'){
+		$("#coach1Nm").val(playerNm);
+		$("#coach1Id").val(playerId);
+		commonvo.searchVo.coach1Nm = playerNm;
+		commonvo.searchVo.coach1 = playerId;
+	}
+	if(popupCode =='2'){
+		$("#coach2Nm").val(playerNm);
+		$("#coach2Id").val(playerId);
+		commonvo.searchVo.coach2Nm = playerNm;
+		commonvo.searchVo.coach2 = playerId;
+	}
+	commonvo.menuCodeVo.workCode ='Y';
+	var commonvostr = JSON.stringify(commonvo);
+	getResource(commonvostr);
+}
+
+$(function(){
+	/* 선수명표출을 위함 */
+	$("#playerNm").val(commonvo.searchVo.playerNm);
+	$("#coach1Nm").val(commonvo.searchVo.coach1Nm);
+	$("#coach2Nm").val(commonvo.searchVo.coach2Nm);
+	
+	/* 달력Component 설정 */
+	$( "#datepicker,#datepickerT,#datepickerF" ).datepicker({
+		altFormat: "yyyy/mm/dd",
+		changeMonth:true,
+		changeYear:true,
+		yearRange:"c-50:c",
+		dateFormat:"yy/mm/dd",
+		dayNamesMin:['일','월', '화', '수', '목', '금', '토'], // 요일의 한글 형식.
+		monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'] // 월의 한글 형식.
+	});
+	
+	$('#datepicker').datepicker();
+	$('#datepickerT').datepicker();
+	$('#datepickerF').datepicker();
+
+	if(gfn_isNull(commonvo.searchVo.searchDate) || commonvo.searchVo.searchDate == 0){
+		$('#datepicker').val($.datepicker.formatDate('yy/mm/dd', new Date()));
+	}else{
+		$('#datepicker').val(commonvo.searchVo.searchDate);	
+	}
+	
+
+	if(gfn_isNull(commonvo.searchVo.searchDateT) || commonvo.searchVo.searchDateT == 0){
+		$('#datepickerT').val($.datepicker.formatDate('yy/mm/dd', new Date()));
+	}else{
+		$('#datepickerT').val(commonvo.searchVo.searchDateT);	
+	}
+	
+
+	if(gfn_isNull(commonvo.searchVo.searchDateF) || commonvo.searchVo.searchDateF == 0){
+		$('#datepickerF').val($.datepicker.formatDate('yy/mm/dd', new Date()));
+	}else{
+		$('#datepickerF').val(commonvo.searchVo.searchDateF);	
+	}
+	
+	$('#datepickerT').datepicker("option", "maxDate", $("#datepickerF").val());
+    $('#datepickerF').datepicker("option", "minDate", $("#datepickerT").val());
+
+	$("#btnSearchDttm,#btnStartDttm, #btnEndDttm").click(function(){
+		var idVal = $(this).attr("data-cal-id");
+		$("#"+idVal).datepicker("show");
+		return false;
+	});
+	
+    $('#datepickerT').datepicker("option", "onClose", function ( selectedDate ) {
+		$("#datepickerF").datepicker( "option", "minDate", selectedDate );
+    });
+    $('#datepickerF').datepicker("option", "onClose", function ( selectedDate ) {
+		$("#datepickerT").datepicker( "option", "maxDate", selectedDate );
+    });
+    
+    
+    
+	//1. 대회년도 변경 > SearchBox 
+    $('#meetYear').change(meetYearSelect=function(){
+    	var date = $('#datepicker').val();
+    	var year = $("#meetYear option:selected").val();
+    	commonvo.searchVo.searchDate = date;
+    	commonvo.searchVo.selectMeetYear = year;
+    	commonvo.menuCodeVo.meetYear = year;
+		commonvo.menuCodeVo.workCode ='Y';
+		commonvo.searchVo.meetNameChange = 'N';
+    	var commonvostr = JSON.stringify(commonvo);
+    	getResource(commonvostr);
+	});
+	
+	//1. 대회년도S 변경 > SearchBox 
+    $('#meetYearS').change(meetYearSSelect=function(){
+    	var date = $('#datepicker').val();
+    	var year = $("#meetYearS option:selected").val();
+    	var endYear = $("#meetYearE option:selected").val();
+    	commonvo.searchVo.searchDate = date;
+    	commonvo.searchVo.selectmeetYearS.Meet_Year = year;
+    	var commonvostr = JSON.stringify(commonvo);
+    	getResource(commonvostr);
+	});
+
+	//1. 대회년도E 변경 > SearchBox 
+    $('#meetYearE').change(meetYearESelect=function(){
+    	var date = $('#datepicker').val();
+    	var year = $("#meetYearE option:selected").val();
+    	var startYear = $("#meetYearS option:selected").val();
+    	commonvo.searchVo.searchDate = date;
+    	commonvo.searchVo.selectmeetYearE.Meet_Year = year;
+    	
+    	var commonvostr = JSON.stringify(commonvo);
+    	getResource(commonvostr);
+	});
+	
+	
+  // 감독관변경 
+    $('#inspector').change(inspectorSelect=function(){
+    	var inspector = $("#inspector option:selected").val();
+    	commonvo.searchVo.selectinspector = inspector;
+		commonvo.menuCodeVo.workCode ='S';
+    	var commonvostr = JSON.stringify(commonvo);
+    	getResource(commonvostr);
+	});
+  
+    // 관계자변경 
+    $('#poscdList').change(poscdListSelect=function(){
+    	var poscdList = $("#poscdList option:selected").val();
+    	commonvo.searchVo.selectposcdList = poscdList;
+		commonvo.menuCodeVo.workCode ='S';
+    	var commonvostr = JSON.stringify(commonvo);
+    	getResource(commonvostr);
+	});
+  
+  
+	//2. 대회명 변경 > SearchBox
+	$('#meetName').change(meetNameSelect=function(){
+		var date = $('#datepicker').val();
+		var meetseq = $("#meetName option:selected").val();
+    	var meetname = $("#meetName option:selected").text();
+    	commonvo.searchVo.searchDate = date;
+    	commonvo.searchVo.selectmeetName.Meet_Seq = meetseq; 
+    	commonvo.searchVo.selectmeetName.Meet_Name = meetname;
+    	commonvo.searchVo.meetNameChange = 'Y';
+    	commonvo.menuCodeVo.workCode ='S';
+
+		if (menuTypeCd=="030" || menuTypeCd=="040"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+
+    	var commonvostr = JSON.stringify(commonvo);
+    	getResource(commonvostr);
+	}); 
+
+	//3. 리그 변경 > SearchBox
+	$('#leagueId').change(leagueIdSelect=function(){
+		var date = $('#datepicker').val();
+		
+		var leagueIdCd = $("#leagueId option:selected").val();
+		var leagueIdNm = $("#leagueId option:selected").text();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectleagueId.com_code = leagueIdCd;
+		commonvo.searchVo.selectleagueId.code_name = leagueIdNm;
+		commonvo.menuCodeVo.workCode ='Y';
+		commonvo.searchVo.meetNameChange = 'N';
+
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+		
+	}); 
+
+	
+	//3. H/A 구분 변경 > SearchBox
+	$('#haGameType').change(haGameTypeSelect=function(){
+		
+		var date = $('#datepicker').val();
+		var haGameTypeseq = $("#haGameType option:selected").val();
+		var haGameTypename = $("#haGameType option:selected").text();
+	
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selecthaGameType.HAN_CD = haGameTypeseq;
+		commonvo.searchVo.selecthaGameType.HAN_NM = haGameTypename;
+		commonvo.menuCodeVo.workCode ='S';
+
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+		
+	}); 
+
+
+	//3. 구분 변경 > SearchBox
+	$('#gameType').change(gameTypeSelect=function(){
+		var date = $('#datepicker').val();
+		var gametypeseq = $("#gameType option:selected").val();
+		var gametypename = $("#gameType option:selected").text();
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectgameType.game_type = gametypeseq;
+		commonvo.searchVo.selectgameType.game_type_name = gametypename;
+		commonvo.menuCodeVo.workCode ='S';
+		commonvo.searchVo.meetNameChange = 'N';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+	//3. 구단 변경 > SearchBox
+	$('#teamId').change(teamIdSelect=function(){
+		var date = $('#datepicker').val();
+		var teamId = $("#teamId option:selected").val();
+		var teamName = $("#teamId option:selected").text();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectteamId.Team_id =teamId;
+		commonvo.searchVo.selectteamId.Team_S_Name =teamName;
+		commonvo.menuCodeVo.workCode ='S';
+		commonvo.searchVo.meetNameChange = 'N';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+	//3. 구단 변경 > SearchBox
+	$('#detailTeamId').change(detailTeamIdSelect=function(){
+		var date = $('#datepicker').val();
+		var teamId = $("#detailTeamId option:selected").val();
+		var teamName = $("#detailTeamId option:selected").text();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectteamId.Team_id =teamId;
+		commonvo.searchVo.selectteamId.Team_S_Name =teamName;
+		commonvo.menuCodeVo.workCode ='S';
+
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+	
+	//3. 구단1 변경 > SearchBox
+	$('#teamId1').change(teamIdSelect=function(){
+		var date = $('#datepicker').val();
+		var teamId = $("#teamId1 option:selected").val();
+		var teamName = $("#teamId1 option:selected").text();
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectteamId1.Team_id =teamId;
+		commonvo.searchVo.selectteamId1.Team_S_Name =teamName;
+		commonvo.menuCodeVo.workCode ='S';
+
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	});
+	
+	//3. 구단2 변경 > SearchBox
+	$('#teamId2').change(teamIdSelect=function(){
+		var date = $('#datepicker').val();
+		var teamId = $("#teamId2 option:selected").val();
+		var teamName = $("#teamId2 option:selected").text();
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectteamId2.Team_id =teamId;
+		commonvo.searchVo.selectteamId2.Team_S_Name =teamName;
+		commonvo.menuCodeVo.workCode ='S';
+
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+
+	
+	//3. 기록 변경 > SearchBox
+	$('#record').change(recordSelect=function(){
+		var date = $('#datepicker').val();
+		var recordCd = $("#record option:selected").val();
+		var recordNM = $("#record option:selected").text();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectrecord.record_cd =recordCd;
+		commonvo.searchVo.selectrecord.record_nm =recordNM;
+		commonvo.menuCodeVo.workCode ='S';
+
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+	//4. 대회기간 변경 > SearchBox
+	$('#meetSmonth').focus(function(){
+		var index = $("#meetSmonth option").index($("#meetSmonth option:selected"));
+	}).change(meetSmonthSelect=function(){
+		var date = $('#datepicker').val();
+		var monthId = $("#meetSmonth option:selected").val();
+		var monthIdE = $("#meetEmonth option:selected").val();
+		var month = $("#meetSmonth option:selected").text();
+/* 		if(monthId > monthIdE){
+			alert("올바른 대회기간이 아닙니다."+index)
+			$('#meetSmonth').find('option:'+index+'').attr('selected', 'selected');
+		} 
+		else{		}*/
+		commonvo.searchVo.selectmeetSmonth.month_id =monthId;
+		commonvo.searchVo.selectmeetSmonth.month =month;
+		commonvo.menuCodeVo.workCode ='S';
+		
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+
+	}); 
+	
+	$('#meetEmonth').change(recordSelect=function(){
+		var date = $('#datepicker').val();
+		var monthId = $("#meetEmonth option:selected").val();
+		var monthIdS = $("#meetSmonth option:selected").val();
+		var month = $("#meetEmonth option:selected").text();
+
+		commonvo.searchVo.selectmeetEmonth.month_id =monthId;
+		commonvo.searchVo.selectmeetEmonth.month =month;
+		commonvo.menuCodeVo.workCode ='S';
+    	
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+ 	
+	//3. 라운드 변경 > SearchBox
+	$('#round').change(roundSelect=function(){
+		var date = $('#datepicker').val();
+		var roundId = $("#round option:selected").val();
+		var roundNm = $("#round option:selected").text();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectround.round_id =roundId;
+		commonvo.searchVo.selectround.round_nm =roundNm;
+		commonvo.menuCodeVo.workCode ='S';
+		
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+	//3. 경기장 변경 > SearchBox
+	$('#meetField').change(meetFieldSelect=function(){
+		var date = $('#datepicker').val();
+		var fieldId = $("#meetField option:selected").val();
+		var fieldNm = $("#meetField option:selected").text();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectmeetField.field_id =fieldId;
+		commonvo.searchVo.selectmeetField.field_Name =fieldNm;
+		commonvo.menuCodeVo.workCode ='S';
+
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+	//3. 검색타입 변경 > SearchBox
+	$('#searchType').change(searchTypeSelect=function(){
+		var date = $('#datepicker').val();
+		var searchTypeId = $("#searchType option:selected").val();
+		var searchTypeNm = $("#searchType option:selected").text();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectsearchType.searchType_id =searchTypeId;
+		commonvo.searchVo.selectsearchType.searchType =searchTypeNm;
+		commonvo.menuCodeVo.workCode ='S';
+
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+	//3. 정렬타입 변경 > SearchBox
+	$('#sortType').change(sortTypeSelect=function(){
+		var date = $('#datepicker').val();
+		var sortType_id = $("#sortType option:selected").val();
+		var sortType = $("#sortType option:selected").text();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectsortType.sortType_id = sortType_id;
+		commonvo.searchVo.selectsortType.sortType = sortType;
+		commonvo.menuCodeVo.workCode ='S';
+		
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+	//3. 감독 변경 > SearchBox
+	$('#coach').change(coachSelect=function(){
+		var date = $('#datepicker').val();
+		var coach_id = $("#coach option:selected").val();
+		var coach = $("#coach option:selected").text();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selectcoach.Player_id = coach_id;
+		commonvo.searchVo.selectcoach.NAME = coach;
+		commonvo.menuCodeVo.workCode ='S';
+		
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+	// 선수 검색에 대한 팝업창
+	function open_popupCoach(menuCd,popupCode){
+		window.open("/common/search/coachPopup.do?menuCd="+menuCd+"&popupCode="+popupCode,"coach","toolbar=yes,menubar=yes,width=700,height=500","","center=yes; width=800; height=500;").focus();
+	};
+	
+	// 선수 검색에 대한 팝업창
+	function open_popup(selectTeam,selectName,menuCd){
+		
+		var selectName =encodeURI(encodeURIComponent(selectName));
+		window.open("/common/search/playerPopup.do?teamId="+selectTeam+"&playerName="+selectName+"&menuCd="+menuCd,"player","toolbar=yes,menubar=yes,width=700,height=500","","center=yes; width=800; height=500;").focus();
+	};
+
+	//3. 선수검색 > input popup Box
+	$('#playerNm').click(playerId=function(){
+		var selectTeam = $("#teamId option:selected").val();
+		var selectName = $("#playerNm").val();
+		var menuCd = commonvo.menuVo.menuCd;
+		open_popup(selectTeam,selectName, menuCd)
+	}); 
+	
+	//3. 감독검색 > input popup Box
+	$('#coach1Nm').click(coach1=function(){
+		var menuCd = commonvo.menuVo.menuCd;
+		var popupCode = '1';
+		open_popupCoach(menuCd,popupCode)
+	});
+	
+	//3. 감독검색 > input popup Box
+	$('#coach2Nm').click(coach2=function(){
+		var menuCd = commonvo.menuVo.menuCd;
+		var popupCode = '2';
+		open_popupCoach(menuCd,popupCode)
+	}); 
+	
+	//3. 감독검색 버튼 > input popup Box
+	$('#coach1Btn').click(coach1B=function(){
+		var menuCd = commonvo.menuVo.menuCd;
+		var popupCode = '1';
+		open_popupCoach(menuCd,popupCode)
+	});
+	
+	//3. 감독검색 버튼 > input popup Box
+	$('#coach2Btn').click(coach2B=function(){
+		var menuCd = commonvo.menuVo.menuCd;
+		var popupCode = '2';
+		open_popupCoach(menuCd,popupCode)
+	}); 
+	
+	
+	//3. 선수검색 버튼 > input popup Box
+	$('#playerIdBtn').click(playerId=function(){
+		var selectTeam = $("#teamId option:selected").val();
+		var selectName = $("#playerNm").val();
+		var menuCd = commonvo.menuVo.menuCd;
+		open_popup(selectTeam,selectName, menuCd)
+	}); 
+	//초기화 버튼
+	$('#repBtn').click(repBtn=function(){
+		$("#playerId").val("");
+		$("#playerNm").val("");
+		commonvo.searchVo.playerId = '';
+		commonvo.searchVo.playerNm = '';
+	}); 
+
+	
+	//3. 계만보이기 변경 > CheckBox
+	  $("#checkForSum").change(function(){
+		  
+        if($("#checkForSum").is(":checked")){
+            commonvo.searchVo.checkForSum = '1';
+        }else{
+            commonvo.searchVo.checkForSum = '0';
+        }
+        
+        var date = $('#datepicker').val();
+        commonvo.searchVo.searchDate = date;
+        commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+        
+        var commonvostr = JSON.stringify(commonvo);
+
+        gfn_transaction({
+    		url:"/common/search/change.do",
+    		type: "post",
+    		async: false,
+    		data: 'commonvostr='+commonvostr,
+    		dataType:'text',
+    		success:function(rs){
+ 				/* console.log(rs); */
+ 				$("#commonview").html(rs);
+	    	},
+	    	error:function(request,status,error){
+	    		console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+	           }
+    		});
+    });
+	
+	
+	//조회 구분
+	$('#type').change(selectType=function(){
+		
+		var date = $('#datepicker').val();
+		var typeId = $("#type option:selected").val();
+		var typeName = $("#type option:selected").text();
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.selecttype.type_cd =typeId;
+		commonvo.searchVo.selecttype.type_nm = typeName;
+		commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	}); 
+	
+	//최다, 최소 > radiobutton	
+	$('#maxFlag').change(selectmaxMinFlag=function(){
+		
+		var date = $('#datepicker').val();
+		var maxMinFlag = $(":input:radio[name=maxMinFlag]:checked").val();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.maxMinFlag = maxMinFlag;
+		commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	
+	}); 
+	//최다, 최소 > radiobutton
+	$('#minFlag').change(selectmaxMinFlag=function(){
+		
+		var date = $('#datepicker').val();
+		var maxMinFlag = $(":input:radio[name=maxMinFlag]:checked").val();
+		
+		commonvo.searchVo.searchDate = date;
+		commonvo.searchVo.maxMinFlag =maxMinFlag;
+		commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	
+	});
+	
+	//교체,무교체 > radiobutton
+	$('#changeFlagY').change(selectmaxMinFlag=function(){
+		
+		var changeFlag = $(":input:radio[name=changeFlag]:checked").val();
+		commonvo.searchVo.changeFlag =changeFlag;
+		commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	});
+	
+	//교체,무교체 > radiobutton
+	$('#changeFlagN').change(selectmaxMinFlag=function(){
+
+		var changeFlag = $(":input:radio[name=changeFlag]:checked").val();
+		commonvo.searchVo.changeFlag =changeFlag;
+		commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	});
+	
+	//선수 스태프 YN
+	$('#staffP').change(selectmaxMinFlag=function(){
+		
+		var staffYn = $(":input:radio[name=staffYn]:checked").val();
+		commonvo.searchVo.staffYn =staffYn;
+		commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	
+	});
+	//선수 스태프 YN
+	$('#staffS').change(selectmaxMinFlag=function(){
+		
+		var staffYn = $(":input:radio[name=staffYn]:checked").val();
+		commonvo.searchVo.staffYn =staffYn;
+		commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	
+	});
+	
+	//일반 결과포함 라디오
+	$('#flag1').change(selectFlag=function(){
+		
+		var flag = $(":input:radio[name=flag]:checked").val();
+		commonvo.searchVo.flag =flag;
+		commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030" || menuTypeCd=="040"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	
+	});
+	//일반 결과포함 라디오
+	$('#flag2').change(selectFlag=function(){
+		
+		var flag = $(":input:radio[name=flag]:checked").val();
+		commonvo.searchVo.flag =flag;
+		commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030" || menuTypeCd=="040"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+		var commonvostr = JSON.stringify(commonvo);
+		getResource(commonvostr);
+	
+	});
+
+	//4. 검색버튼 클릭
+	$( "#btnSearch" ).on( "click", function() {
+		$( "#searchForm" ).trigger("submit");
+	});
+	
+	//검색조회 Function
+    $( "#searchForm" ).on( "submit", function() {
+    	
+    	if ($('#datepickerT').val() != null && $('#datepickerT').val()!=""){
+    		var dateT = $('#datepickerT').val();
+    		var dateF = $('#datepickerF').val();
+    		commonvo.searchVo.searchDateT = dateT;
+    		commonvo.searchVo.searchDateF = dateF;
+    	}
+    	else{
+    		var date = $('#datepicker').val();
+    		commonvo.searchVo.searchDate = date;
+    	}
+    	if($('#topRank').val() != null && $('#topRank').val()!=""){
+    		var topRank = $('#topRank').val();
+    		if (topRank<=0){
+    			alert("양수를 입력하세요");
+    			return false;
+    		}
+    		commonvo.searchVo.topRank =topRank;
+    	}
+    	if($('#time').val() != null && $('#time').val()!=""){
+    		var time = $('#time').val();
+    		commonvo.searchVo.time =time;
+    	}
+    	commonvo.menuCodeVo.workCode ='S';
+		if (menuTypeCd=="030"){
+    		commonvo.menuCodeVo.workCode ='I';	
+    	}
+    	var commonvostr = JSON.stringify(commonvo);
+    	getResource(commonvostr);
+    	return false;
+    });
+	
+	
+	
+	//5. 인쇄버튼 클릭
+	$( "#btnPrint" ).on( "click", function() {
+		fn_print();
+	});
+});
+</script>
+<textarea id="taStr" style="display: none;"></textarea>
+<!-- // TITLE 레이아웃 -->
+<div class="sub-title">
+<h2>구단별 개인기록</h2>
+<p></p><p>
+<!-- // 하단 이동 <a href="#bottom">bottom밑으로 이동 버튼</a> // -->
+</p></div>
+<!-- // SEARCH 검색 영역 -->
+<div class="searchForm">
+<form id="searchForm" method="post">
+<div class="searchForm-box">
+<!-- 기준일자 > input -->
+<div class="input-group">
+<div class="input-group-addon">기준일자</div>
+<input class="talbe-form-control wid80 ccc hasDatepicker" id="datepicker" readonly="readonly"/>
+<button class="btn-calendar btn-icon-calendar" data-cal-id="datepicker" id="btnSearchDttm" type="button"></button>
+</div>
+<!-- 기준일자T > input -->
+<!-- 기준일자F > input -->
+<!-- 대회년도 > select -->
+<div class="input-group">
+<div class="input-group-addon">대회년도</div>
+<select class="select-control wid80" id="meetYear" name="meetYear">
+<option value="[모든 자료]">[모든 자료]</option>
+<option selected="" value="2021">2021</option>
+<option value="2020">2020</option>
+<option value="2019">2019</option>
+<option value="2018">2018</option>
+<option value="2017">2017</option>
+<option value="2016">2016</option>
+<option value="2015">2015</option>
+<option value="2014">2014</option>
+<option value="2013">2013</option>
+</select>
+</div>
+<!-- 시작 대회년도 > select -->
+<!-- 끝 대회년도 > select -->
+<!-- 시작대회기간 > select -->
+<!-- 끝대회기간 > select -->
+<!-- 감독관 > select -->
+<!-- 리그 > select -->
+<!-- 대회명 > select -->
+<div class="input-group">
+<div class="input-group-addon">대회명</div>
+<select class="select-control" id="meetName" name="meetName ">
+<option value="0">[모든 자료]</option>
+<option selected="" value="2">하나원큐 K리그2 2021</option>
+</select>
+</div>
+<!-- 구분 > select -->
+<div class="input-group">
+<div class="input-group-addon">구분</div>
+<select class="select-control" id="gameType" name="gameType ">
+<option selected="" value="0">[모든 자료]</option>
+<option value="1">일반</option>
+</select>
+</div>
+<!-- H/A구분 > select -->
+<!-- 구단 > select -->
+<div class="input-group">
+<div class="input-group-addon">구단</div>
+<select class="select-control" id="teamId" name="teamId ">
+<option value="K20">경남</option>
+<option value="K35">김천</option>
+<option value="K10">대전</option>
+<option value="K06">부산</option>
+<option value="K26">부천</option>
+<option value="K31">서울E</option>
+<option value="K32">안산</option>
+<option selected="" value="K27">안양</option>
+<option value="K07">전남</option>
+<option value="K34">충남아산</option>
+</select>
+</div>
+<!-- 관계자 > select -->
+<!-- 조회감독찾기 -->
+<!-- 조회구단 > select -->
+<!-- 상대감독찾기 -->
+<!-- 상대구단 > select -->
+<!-- 조회타입 > select -->
+<!-- 라운드 > select -->
+<!-- 기록 > select -->
+<!-- 경기장 > select -->
+<!-- 타입(구단별,년도별,일자별) > select -->
+<!-- 정렬방법  > select -->
+<!-- 감독  > select -->
+<!-- 선수찾기 -->
+<!-- 시간 > input -->
+<!-- 상위 > input -->
+<!-- 최다 최소 > radio -->
+<!-- 교체포함 무교체 > radio -->
+<!-- 선수 스태프 > radio -->
+<!-- 일반 결과포함 > radio -->
+<!-- 계만보이기 check -->
+</div>
+</form>
+</div>
+<!-- // SEARCH 선택 결과 영역 // -->
+<div class="searchResult">
+<div class="searchResult-box">
+<div class="searchResult-left">
+<div class="searchResult-group wid100">
+<img src="/images/portal/img-serchview.png"/>
+</div>
+<!-- // 공통 버튼 // -->
+<div class="searchResult-right-btn mr20">
+<button class="btn-primary btn-sm-search btn-searchForm" id="btnSearch" type="button">조회</button>
+</div>
+</div>
+<!-- 시간 -->
+<!-- 년도 -->
+<div class="searchResult-right" id="searchResult">
+<!-- 기준일자 -->
+<!-- 기준일자T -->
+<div class="searchResult-group wid-20p">
+<span class="searchResult-name">기준일자</span>
+<p>2021/06/08</p>
+</div>
+<!-- 대회년도 -->
+<div class="searchResult-group wid-15p">
+<span class="searchResult-name">대회년도</span>
+<p>2021</p>
+</div>
+<!-- 대회기간 -->
+<!-- 대회명 -->
+<div class="searchResult-group wid-20p">
+<span class="searchResult-name">대회명</span>
+<p>하나원큐 K리그2 2021</p>
+</div>
+<!-- 리그 -->
+<!-- 구분 -->
+<div class="searchResult-group wid-20p">
+<span class="searchResult-name">구분</span>
+<p>[모든 자료]</p>
+</div>
+<!-- H/A 구분 -->
+<!-- 구단 -->
+<div class="searchResult-group wid-20p">
+<span class="searchResult-name">구단</span>
+<p>안양</p>
+</div>
+<!-- 조회타입 -->
+<!-- 조회구분 (최다최소 라디오)-->
+<!-- 기록 -->
+<!-- 상위 -->
+<!-- 시간 -->
+<!-- 라운드 -->
+<!-- 경기장 -->
+<!-- 선수 -->
+<!-- 일반, 결과포함 -->
+</div>
+</div>
+</div>
+<!-- 검색 결과 레이아웃 -->
+<!-- 차트 js -->
+<!-- <script src="/resources/chart/Chart.bundle.js"></script>
+<script src="/resources/chart/Chart.bundle.min.js"></script>
+<script src="/resources/chart/Chart.js"></script>
+<script src="/resources/chart/Chart.min.js"></script>
+<script src="/js/chart.js"></script> -->
+<!-- 탭 js -->
+<script src="/js/tab.js"></script>
+<!-- 로우스펜 js -->
+<script src="/resources/jquery.rowspanizer.js"></script>
+<script type="text/javascript">
+	var jsonResultData = [{"Player_id":"20170078","Player_Name":"김경중","Work_Qty":12,"Change_i_Qty":8,"Change_o_Qty":4,"Change_Qty":12,"Goal_b_QTy":1,"Goal_a_QTy":3,"Goal_e_QTy":0,"Goal_Qty":4,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":15,"OS_Qty":3,"St_Qty":8,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":1,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":5,"Fs_Qty":13,"ROWNUMBER":1,"PLAYER_POINT":7.0},{"Player_id":"20210099","Player_Name":"김준섭","Work_Qty":3,"Change_i_Qty":0,"Change_o_Qty":3,"Change_Qty":3,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":1,"Fo_Qty":1,"OS_Qty":0,"St_Qty":1,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":1,"Fs_Qty":0,"ROWNUMBER":2,"PLAYER_POINT":6.5},{"Player_id":"20190085","Player_Name":"김태훈","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":3},{"Player_id":"20160040","Player_Name":"김형진","Work_Qty":15,"Change_i_Qty":0,"Change_o_Qty":1,"Change_Qty":1,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":19,"OS_Qty":0,"St_Qty":4,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":4,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":7,"ROWNUMBER":4,"PLAYER_POINT":6.7},{"Player_id":"20140238","Player_Name":"닐손주니어","Work_Qty":13,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":1,"Goal_a_QTy":1,"Goal_e_QTy":0,"Goal_Qty":2,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":4,"OS_Qty":0,"St_Qty":7,"Pk_Y_Qty":2,"Pk_N_Qty":0,"Pk_Per":100.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":5,"Fs_Qty":8,"ROWNUMBER":5,"PLAYER_POINT":7.1},{"Player_id":"20190084","Player_Name":"맹성웅","Work_Qty":15,"Change_i_Qty":0,"Change_o_Qty":1,"Change_Qty":1,"Goal_b_QTy":0,"Goal_a_QTy":1,"Goal_e_QTy":0,"Goal_Qty":1,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":29,"OS_Qty":1,"St_Qty":9,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":2,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":5,"Fs_Qty":27,"ROWNUMBER":6,"PLAYER_POINT":7.0},{"Player_id":"20170164","Player_Name":"모재현","Work_Qty":13,"Change_i_Qty":7,"Change_o_Qty":4,"Change_Qty":11,"Goal_b_QTy":1,"Goal_a_QTy":1,"Goal_e_QTy":0,"Goal_Qty":2,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":11,"OS_Qty":1,"St_Qty":19,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":1,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":7,"Fs_Qty":9,"ROWNUMBER":7,"PLAYER_POINT":6.5},{"Player_id":"20140128","Player_Name":"박대한","Work_Qty":5,"Change_i_Qty":3,"Change_o_Qty":0,"Change_Qty":3,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":5,"OS_Qty":0,"St_Qty":1,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":1,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":4,"ROWNUMBER":8,"PLAYER_POINT":6.4},{"Player_id":"20140203","Player_Name":"백동규","Work_Qty":13,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":1,"Goal_e_QTy":0,"Goal_Qty":1,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":18,"OS_Qty":0,"St_Qty":3,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":1,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":3,"Fs_Qty":4,"ROWNUMBER":9,"PLAYER_POINT":6.8},{"Player_id":"20120024","Player_Name":"심동운","Work_Qty":14,"Change_i_Qty":3,"Change_o_Qty":5,"Change_Qty":8,"Goal_b_QTy":2,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":2,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":13,"Fo_Qty":12,"OS_Qty":1,"St_Qty":37,"Pk_Y_Qty":0,"Pk_N_Qty":1,"Pk_Per":0.0,"Warn_Qty":1,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":20,"Fs_Qty":15,"ROWNUMBER":10,"PLAYER_POINT":7.0},{"Player_id":"20200190","Player_Name":"아코스티","Work_Qty":2,"Change_i_Qty":2,"Change_o_Qty":0,"Change_Qty":2,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":1,"OS_Qty":0,"St_Qty":2,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":1,"Fs_Qty":2,"ROWNUMBER":11,"PLAYER_POINT":6.5},{"Player_id":"20050077","Player_Name":"양동원","Work_Qty":3,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":2,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":1,"ROWNUMBER":12,"PLAYER_POINT":6.9},{"Player_id":"20110195","Player_Name":"유종현","Work_Qty":5,"Change_i_Qty":3,"Change_o_Qty":0,"Change_Qty":3,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":2,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":1,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":2,"ROWNUMBER":13,"PLAYER_POINT":6.6},{"Player_id":"20120125","Player_Name":"윤준성","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":14},{"Player_id":"20170190","Player_Name":"이상용","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":15},{"Player_id":"20190165","Player_Name":"이선걸","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":16},{"Player_id":"20110186","Player_Name":"임선영","Work_Qty":3,"Change_i_Qty":2,"Change_o_Qty":1,"Change_Qty":3,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":1,"OS_Qty":1,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":6,"ROWNUMBER":17,"PLAYER_POINT":6.5},{"Player_id":"20190213","Player_Name":"임승겸","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":18},{"Player_id":"20180199","Player_Name":"정민기","Work_Qty":12,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":12,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":5,"ROWNUMBER":19,"PLAYER_POINT":7.0},{"Player_id":"20080010","Player_Name":"정준연","Work_Qty":12,"Change_i_Qty":2,"Change_o_Qty":1,"Change_Qty":3,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":18,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":4,"Exit_Qty":1,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":14,"ROWNUMBER":20,"PLAYER_POINT":6.6},{"Player_id":"20210101","Player_Name":"조나탄","Work_Qty":14,"Change_i_Qty":3,"Change_o_Qty":2,"Change_Qty":5,"Goal_b_QTy":4,"Goal_a_QTy":1,"Goal_e_QTy":0,"Goal_Qty":5,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":26,"OS_Qty":16,"St_Qty":24,"Pk_Y_Qty":3,"Pk_N_Qty":0,"Pk_Per":100.0,"Warn_Qty":3,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":18,"Fs_Qty":12,"ROWNUMBER":21,"PLAYER_POINT":7.0},{"Player_id":"20150026","Player_Name":"주현우","Work_Qty":15,"Change_i_Qty":1,"Change_o_Qty":0,"Change_Qty":1,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":2,"GK_Qty":0,"CK_Qty":50,"Fo_Qty":12,"OS_Qty":1,"St_Qty":11,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":3,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":8,"Fs_Qty":24,"ROWNUMBER":22,"PLAYER_POINT":6.8},{"Player_id":"20210102","Player_Name":"최민서","Work_Qty":9,"Change_i_Qty":0,"Change_o_Qty":9,"Change_Qty":9,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":2,"OS_Qty":0,"St_Qty":2,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":1,"Fs_Qty":5,"ROWNUMBER":23,"PLAYER_POINT":6.2},{"Player_id":"20200051","Player_Name":"최승훈","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":24},{"Player_id":"20100178","Player_Name":"최호정","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":25},{"Player_id":"20210089","Player_Name":"타무라","Work_Qty":8,"Change_i_Qty":6,"Change_o_Qty":1,"Change_Qty":7,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":3,"Fo_Qty":4,"OS_Qty":1,"St_Qty":2,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":26,"PLAYER_POINT":6.2},{"Player_id":"20200134","Player_Name":"하남","Work_Qty":1,"Change_i_Qty":1,"Change_o_Qty":0,"Change_Qty":1,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":1,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":1,"ROWNUMBER":27,"PLAYER_POINT":5.8},{"Player_id":"20190114","Player_Name":"하승운","Work_Qty":7,"Change_i_Qty":2,"Change_o_Qty":3,"Change_Qty":5,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":2,"OS_Qty":0,"St_Qty":8,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":6,"Fs_Qty":5,"ROWNUMBER":28,"PLAYER_POINT":6.8},{"Player_id":"20210098","Player_Name":"홍창범","Work_Qty":12,"Change_i_Qty":0,"Change_o_Qty":6,"Change_Qty":6,"Goal_b_QTy":1,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":1,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":23,"OS_Qty":0,"St_Qty":15,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":6,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":8,"Fs_Qty":30,"ROWNUMBER":29,"PLAYER_POINT":6.9},{"Player_id":"20210100","Player_Name":"홍현호","Work_Qty":2,"Change_i_Qty":0,"Change_o_Qty":2,"Change_Qty":2,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":1,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":1,"ROWNUMBER":30,"PLAYER_POINT":6.6}];
+	var commonViewData = {"menuVo":{"menuCd":"0073","menuNm":"구단별 개인기록","parentMenuCd":"0059","searchFormKey":"searchDate,meetYear,meetName,gameType,teamId","searchDataKey":"meetName, gameType, teamId, inputVal, leagueId","menuUrl":"/common/main/commonView.do","uriPath":"data/offi/","chartYn":"N","btnQry":"Y","btnExl":"N","btnSave":"N","btnAdd":"N","btnDel":"N","btnPrt":"N","btnClr":"N","btnDwn":"N","searchChildrenYn":"Y","menuTypeCd":"005","helpFileSize":0,"regUserId":"platform","updUserId":"platform","searchCondition":"","searchKeyword":""},"searchVo":{"searchDate":"2021/06/08","searchDateUi":"Y","meetYear":[{"Meet_Year":"[모든 자료]"},{"Meet_Year":"2021"},{"Meet_Year":"2020"},{"Meet_Year":"2019"},{"Meet_Year":"2018"},{"Meet_Year":"2017"},{"Meet_Year":"2016"},{"Meet_Year":"2015"},{"Meet_Year":"2014"},{"Meet_Year":"2013"}],"selectMeetYear":"2021","meetYearUi":"Y","meetName":[{"Meet_Seq":"0","Meet_Name":"[모든 자료]"},{"Meet_Seq":"2","Meet_Name":"하나원큐 K리그2 2021"}],"selectmeetName":{"Meet_Seq":"2","Meet_Name":"하나원큐 K리그2 2021"},"meetNameUi":"Y","meetNameChange":"N","gameType":[{"game_type":"0","game_type_name":"[모든 자료]"},{"game_type":"1","game_type_name":"일반"}],"selectgameType":{"game_type":"0","game_type_name":"[모든 자료]"},"gameTypeUi":"Y","teamId":[{"Team_id":"K20","Team_S_Name":"경남"},{"Team_id":"K35","Team_S_Name":"김천"},{"Team_id":"K10","Team_S_Name":"대전"},{"Team_id":"K06","Team_S_Name":"부산"},{"Team_id":"K26","Team_S_Name":"부천"},{"Team_id":"K31","Team_S_Name":"서울E"},{"Team_id":"K32","Team_S_Name":"안산"},{"Team_id":"K27","Team_S_Name":"안양"},{"Team_id":"K07","Team_S_Name":"전남"},{"Team_id":"K34","Team_S_Name":"충남아산"}],"selectteamId":{"Team_id":"K27","Team_S_Name":"안양"},"teamIdUi":"Y","checkForSum":"0","maxMinFlag":"1","leagueId":[{"com_code":"2","code_name":"K리그1","code_class":"K League 1"},{"com_code":"3","code_name":"K리그2","code_class":"K League 2"},{"com_code":"1","code_name":"K리그 BC(~2012)","code_class":"K League BC(~2012)"},{"com_code":"5","code_name":"승강PO","code_class":"PlayOff"},{"com_code":"7","code_name":"최상위 리그 ","code_class":"Top League"}],"searchFormKey":["searchDate","meetYear","meetName","gameType","teamId"]},"menuCodeVo":{"menuCd":"0073","menuTypeCode":"005","meetSeq":"2","meetGameType":"0","leagueId":"3","meetYear":"2021","workCode":"S","seasonFlag":"1","userId":"platform"}};
+	
+	$(document).ready(function(){
+		/* 탭 */
+		tabStart();
+		/* 차트 */
+		/* var jsonResultData = [{"Player_id":"20170078","Player_Name":"김경중","Work_Qty":12,"Change_i_Qty":8,"Change_o_Qty":4,"Change_Qty":12,"Goal_b_QTy":1,"Goal_a_QTy":3,"Goal_e_QTy":0,"Goal_Qty":4,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":15,"OS_Qty":3,"St_Qty":8,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":1,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":5,"Fs_Qty":13,"ROWNUMBER":1,"PLAYER_POINT":7.0},{"Player_id":"20210099","Player_Name":"김준섭","Work_Qty":3,"Change_i_Qty":0,"Change_o_Qty":3,"Change_Qty":3,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":1,"Fo_Qty":1,"OS_Qty":0,"St_Qty":1,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":1,"Fs_Qty":0,"ROWNUMBER":2,"PLAYER_POINT":6.5},{"Player_id":"20190085","Player_Name":"김태훈","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":3},{"Player_id":"20160040","Player_Name":"김형진","Work_Qty":15,"Change_i_Qty":0,"Change_o_Qty":1,"Change_Qty":1,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":19,"OS_Qty":0,"St_Qty":4,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":4,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":7,"ROWNUMBER":4,"PLAYER_POINT":6.7},{"Player_id":"20140238","Player_Name":"닐손주니어","Work_Qty":13,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":1,"Goal_a_QTy":1,"Goal_e_QTy":0,"Goal_Qty":2,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":4,"OS_Qty":0,"St_Qty":7,"Pk_Y_Qty":2,"Pk_N_Qty":0,"Pk_Per":100.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":5,"Fs_Qty":8,"ROWNUMBER":5,"PLAYER_POINT":7.1},{"Player_id":"20190084","Player_Name":"맹성웅","Work_Qty":15,"Change_i_Qty":0,"Change_o_Qty":1,"Change_Qty":1,"Goal_b_QTy":0,"Goal_a_QTy":1,"Goal_e_QTy":0,"Goal_Qty":1,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":29,"OS_Qty":1,"St_Qty":9,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":2,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":5,"Fs_Qty":27,"ROWNUMBER":6,"PLAYER_POINT":7.0},{"Player_id":"20170164","Player_Name":"모재현","Work_Qty":13,"Change_i_Qty":7,"Change_o_Qty":4,"Change_Qty":11,"Goal_b_QTy":1,"Goal_a_QTy":1,"Goal_e_QTy":0,"Goal_Qty":2,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":11,"OS_Qty":1,"St_Qty":19,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":1,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":7,"Fs_Qty":9,"ROWNUMBER":7,"PLAYER_POINT":6.5},{"Player_id":"20140128","Player_Name":"박대한","Work_Qty":5,"Change_i_Qty":3,"Change_o_Qty":0,"Change_Qty":3,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":5,"OS_Qty":0,"St_Qty":1,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":1,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":4,"ROWNUMBER":8,"PLAYER_POINT":6.4},{"Player_id":"20140203","Player_Name":"백동규","Work_Qty":13,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":1,"Goal_e_QTy":0,"Goal_Qty":1,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":18,"OS_Qty":0,"St_Qty":3,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":1,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":3,"Fs_Qty":4,"ROWNUMBER":9,"PLAYER_POINT":6.8},{"Player_id":"20120024","Player_Name":"심동운","Work_Qty":14,"Change_i_Qty":3,"Change_o_Qty":5,"Change_Qty":8,"Goal_b_QTy":2,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":2,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":13,"Fo_Qty":12,"OS_Qty":1,"St_Qty":37,"Pk_Y_Qty":0,"Pk_N_Qty":1,"Pk_Per":0.0,"Warn_Qty":1,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":20,"Fs_Qty":15,"ROWNUMBER":10,"PLAYER_POINT":7.0},{"Player_id":"20200190","Player_Name":"아코스티","Work_Qty":2,"Change_i_Qty":2,"Change_o_Qty":0,"Change_Qty":2,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":1,"OS_Qty":0,"St_Qty":2,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":1,"Fs_Qty":2,"ROWNUMBER":11,"PLAYER_POINT":6.5},{"Player_id":"20050077","Player_Name":"양동원","Work_Qty":3,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":2,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":1,"ROWNUMBER":12,"PLAYER_POINT":6.9},{"Player_id":"20110195","Player_Name":"유종현","Work_Qty":5,"Change_i_Qty":3,"Change_o_Qty":0,"Change_Qty":3,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":2,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":1,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":2,"ROWNUMBER":13,"PLAYER_POINT":6.6},{"Player_id":"20120125","Player_Name":"윤준성","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":14},{"Player_id":"20170190","Player_Name":"이상용","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":15},{"Player_id":"20190165","Player_Name":"이선걸","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":16},{"Player_id":"20110186","Player_Name":"임선영","Work_Qty":3,"Change_i_Qty":2,"Change_o_Qty":1,"Change_Qty":3,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":1,"OS_Qty":1,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":6,"ROWNUMBER":17,"PLAYER_POINT":6.5},{"Player_id":"20190213","Player_Name":"임승겸","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":18},{"Player_id":"20180199","Player_Name":"정민기","Work_Qty":12,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":12,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":5,"ROWNUMBER":19,"PLAYER_POINT":7.0},{"Player_id":"20080010","Player_Name":"정준연","Work_Qty":12,"Change_i_Qty":2,"Change_o_Qty":1,"Change_Qty":3,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":18,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":4,"Exit_Qty":1,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":14,"ROWNUMBER":20,"PLAYER_POINT":6.6},{"Player_id":"20210101","Player_Name":"조나탄","Work_Qty":14,"Change_i_Qty":3,"Change_o_Qty":2,"Change_Qty":5,"Goal_b_QTy":4,"Goal_a_QTy":1,"Goal_e_QTy":0,"Goal_Qty":5,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":26,"OS_Qty":16,"St_Qty":24,"Pk_Y_Qty":3,"Pk_N_Qty":0,"Pk_Per":100.0,"Warn_Qty":3,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":18,"Fs_Qty":12,"ROWNUMBER":21,"PLAYER_POINT":7.0},{"Player_id":"20150026","Player_Name":"주현우","Work_Qty":15,"Change_i_Qty":1,"Change_o_Qty":0,"Change_Qty":1,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":2,"GK_Qty":0,"CK_Qty":50,"Fo_Qty":12,"OS_Qty":1,"St_Qty":11,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":3,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":8,"Fs_Qty":24,"ROWNUMBER":22,"PLAYER_POINT":6.8},{"Player_id":"20210102","Player_Name":"최민서","Work_Qty":9,"Change_i_Qty":0,"Change_o_Qty":9,"Change_Qty":9,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":2,"OS_Qty":0,"St_Qty":2,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":1,"Fs_Qty":5,"ROWNUMBER":23,"PLAYER_POINT":6.2},{"Player_id":"20200051","Player_Name":"최승훈","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":24},{"Player_id":"20100178","Player_Name":"최호정","Work_Qty":0,"Change_i_Qty":0,"Change_o_Qty":0,"Change_Qty":0,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":0,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":25},{"Player_id":"20210089","Player_Name":"타무라","Work_Qty":8,"Change_i_Qty":6,"Change_o_Qty":1,"Change_Qty":7,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":3,"Fo_Qty":4,"OS_Qty":1,"St_Qty":2,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":0,"ROWNUMBER":26,"PLAYER_POINT":6.2},{"Player_id":"20200134","Player_Name":"하남","Work_Qty":1,"Change_i_Qty":1,"Change_o_Qty":0,"Change_Qty":1,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":1,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":1,"ROWNUMBER":27,"PLAYER_POINT":5.8},{"Player_id":"20190114","Player_Name":"하승운","Work_Qty":7,"Change_i_Qty":2,"Change_o_Qty":3,"Change_Qty":5,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":2,"OS_Qty":0,"St_Qty":8,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":6,"Fs_Qty":5,"ROWNUMBER":28,"PLAYER_POINT":6.8},{"Player_id":"20210098","Player_Name":"홍창범","Work_Qty":12,"Change_i_Qty":0,"Change_o_Qty":6,"Change_Qty":6,"Goal_b_QTy":1,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":1,"Assist_Qty":1,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":23,"OS_Qty":0,"St_Qty":15,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":6,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":8,"Fs_Qty":30,"ROWNUMBER":29,"PLAYER_POINT":6.9},{"Player_id":"20210100","Player_Name":"홍현호","Work_Qty":2,"Change_i_Qty":0,"Change_o_Qty":2,"Change_Qty":2,"Goal_b_QTy":0,"Goal_a_QTy":0,"Goal_e_QTy":0,"Goal_Qty":0,"Assist_Qty":0,"GK_Qty":0,"CK_Qty":0,"Fo_Qty":1,"OS_Qty":0,"St_Qty":0,"Pk_Y_Qty":0,"Pk_N_Qty":0,"Pk_Per":0.0,"Warn_Qty":0,"Exit_Qty":0,"Loss_Goal":0,"Self_Goal":0,"Tk_I_Qty":0,"Tk_R_Qty":0,"Tk_l_Goal":0,"Tk_R_Goal":0,"Tk_Miss_Goal":0,"Tk_l_Per":0.0,"TK_R_Per":0.0,"TK_Miss_Per":0.0,"St_Valid_Qty":0,"Fs_Qty":1,"ROWNUMBER":30,"PLAYER_POINT":6.6}];
+		chartStart(jsonResultData); */
+	});
+	
+	//인쇄 Function
+	function fn_print() {
+		var d = new Date();
+		var ds = {
+				"MENU_NM" : commonViewData.menuVo.menuNm,
+				"MEET_YEAR" : commonViewData.searchVo.selectMeetYear,
+				"GAME_TYPE" : commonViewData.searchVo.selectgameType.game_type_name,
+				"MEET_NAME" : commonViewData.searchVo.selectmeetName.Meet_Name,
+				"TEAM_NAME" : commonViewData.searchVo.selectteamId.Team_S_Name,
+				"SEARCH_DATE" : commonViewData.searchVo.searchDate,
+				"PRINT_COMPANY" : COMPANY_NAME,
+				"PRINT_DATETIME" : d.toLocaleString()
+		};
+		
+		var ds_0 = JSON.stringify([ds]);
+		var ds_1 = JSON.stringify(jsonResultData);
+		
+		var _params = {
+						 projectName:"kleague"
+  		      			,formName:"result0053"
+						,dataset_0:encodeURIComponent(ds_0)
+						,dataset_1:encodeURIComponent(ds_1)
+		};
+		
+		gfn_openViewer(_params);
+	}
+</script>
+<!-- 검색 결과 탭 영역 -->
+<!-- // SEARCH 데이터(표) 결과 // -->
+<div class="searchDataset sub-team-table">
+<div class="tab-content current" id="tab-1">
+<div class="board-table">
+<div class="floatThead-wrapper" style="position: relative; clear: both;"><div aria-hidden="true" class="floatThead-container" style="overflow-x: hidden; padding-left: 0px; padding-right: 0px; position: absolute; margin-top: 0px; top: 0px; z-index: 1001; will-change: transform; transform: translateX(0px) translateY(0px); left: 0px; width: 869px;"><table class="table floatThead-table" style="border-collapse: collapse; border: 0px none rgb(51, 51, 51); display: table; width: 869px; margin: 0px; table-layout: fixed;"><colgroup><col style="width: 69px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 43px;"/><col style="width: 43px;"/><col style="width: 43px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/></colgroup></table></div><table class="table" style="table-layout: fixed; min-width: 869px;"><thead>
+<tr>
+<td class="bar_bottm_right_01" rowspan="2" width="8%">성명</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">NO</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">출장</td>
+<td class="bar_bottm_right_01" colspan="3" width="auto">교체</td>
+<td class="bar_bottm_right_01" colspan="4" width="auto">GL</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">AS</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">GK</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">CK</td>
+<td class="bar_bottm_right_01" colspan="2" width="auto">FO</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">OS</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">ST</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">SOT</td>
+<td class="bar_bottm_right_01" colspan="3" width="15%">PK</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">경고</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">퇴장</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">실점</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">자책</td>
+<td class="bar_bottm_right_01" rowspan="2" width="auto">평점</td>
+</tr>
+<tr>
+<td class="bar_bottm_right_01">I</td>
+<td class="bar_bottm_right_01">O</td>
+<td class="bar_bottm_right_01">합</td>
+<td class="bar_bottm_right_01">전</td>
+<td class="bar_bottm_right_01">후</td>
+<td class="bar_bottm_right_01">연</td>
+<td class="bar_bottm_right_01">합</td>
+<td class="bar_bottm_right_01">FC</td>
+<td class="bar_bottm_right_01">FS</td>
+<td class="bar_bottm_right_01">득</td>
+<td class="bar_bottm_right_01">실</td>
+<td class="bar_bottm_right_01">%</td>
+</tr>
+</thead><colgroup><col style="width: 69px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 30px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 43px;"/><col style="width: 43px;"/><col style="width: 43px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/><col style="width: 31px;"/></colgroup>
+<tbody>
+<tr>
+<td class="bar_bottm_right bold" height="13">김경중</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">12</td>
+<td class="bar_bottm_right">8</td>
+<td class="bar_bottm_right">4</td>
+<td class="bar_bottm_right">12</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right blue bold">3</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">4</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">15</td>
+<td class="bar_bottm_right">13</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">8</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">1</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">7.0</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">김준섭</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.5</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">김태훈</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right"></td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">김형진</td>
+<td class="bar_bottm_right">4</td>
+<td class="bar_bottm_right">15</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">19</td>
+<td class="bar_bottm_right">7</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">4</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">4</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.7</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">닐손주니어</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">13</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">2</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">4</td>
+<td class="bar_bottm_right">8</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">7</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">100.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">7.1</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">맹성웅</td>
+<td class="bar_bottm_right">6</td>
+<td class="bar_bottm_right">15</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">29</td>
+<td class="bar_bottm_right">27</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">9</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">2</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">7.0</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">모재현</td>
+<td class="bar_bottm_right">7</td>
+<td class="bar_bottm_right">13</td>
+<td class="bar_bottm_right">7</td>
+<td class="bar_bottm_right">4</td>
+<td class="bar_bottm_right">11</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">2</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">11</td>
+<td class="bar_bottm_right">9</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">19</td>
+<td class="bar_bottm_right">7</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">1</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.5</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">박대한</td>
+<td class="bar_bottm_right">8</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">4</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">1</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.4</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">백동규</td>
+<td class="bar_bottm_right">9</td>
+<td class="bar_bottm_right">13</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">18</td>
+<td class="bar_bottm_right">4</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">1</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.8</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">심동운</td>
+<td class="bar_bottm_right">10</td>
+<td class="bar_bottm_right">14</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">8</td>
+<td class="bar_bottm_right blue bold">2</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">2</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">13</td>
+<td class="bar_bottm_right">12</td>
+<td class="bar_bottm_right">15</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">37</td>
+<td class="bar_bottm_right">20</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">1</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">7.0</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">아코스티</td>
+<td class="bar_bottm_right">11</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.5</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">양동원</td>
+<td class="bar_bottm_right">12</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">2</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.9</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">유종현</td>
+<td class="bar_bottm_right">13</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">1</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.6</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">윤준성</td>
+<td class="bar_bottm_right">14</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right"></td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">이상용</td>
+<td class="bar_bottm_right">15</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right"></td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">이선걸</td>
+<td class="bar_bottm_right">16</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right"></td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">임선영</td>
+<td class="bar_bottm_right">17</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">6</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.5</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">임승겸</td>
+<td class="bar_bottm_right">18</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right"></td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">정민기</td>
+<td class="bar_bottm_right">19</td>
+<td class="bar_bottm_right">12</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">12</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">7.0</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">정준연</td>
+<td class="bar_bottm_right">20</td>
+<td class="bar_bottm_right">12</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">18</td>
+<td class="bar_bottm_right">14</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">4</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">1</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.6</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">조나탄</td>
+<td class="bar_bottm_right">21</td>
+<td class="bar_bottm_right">14</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right blue bold">4</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">5</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">26</td>
+<td class="bar_bottm_right">12</td>
+<td class="bar_bottm_right">16</td>
+<td class="bar_bottm_right">24</td>
+<td class="bar_bottm_right">18</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">100.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">3</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">7.0</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">주현우</td>
+<td class="bar_bottm_right">22</td>
+<td class="bar_bottm_right">15</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">50</td>
+<td class="bar_bottm_right">12</td>
+<td class="bar_bottm_right">24</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">11</td>
+<td class="bar_bottm_right">8</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">3</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.8</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">최민서</td>
+<td class="bar_bottm_right">23</td>
+<td class="bar_bottm_right">9</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">9</td>
+<td class="bar_bottm_right">9</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.2</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">최승훈</td>
+<td class="bar_bottm_right">24</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right"></td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">최호정</td>
+<td class="bar_bottm_right">25</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right"></td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">타무라</td>
+<td class="bar_bottm_right">26</td>
+<td class="bar_bottm_right">8</td>
+<td class="bar_bottm_right">6</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">7</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">4</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.2</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">하남</td>
+<td class="bar_bottm_right">27</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">5.8</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">하승운</td>
+<td class="bar_bottm_right">28</td>
+<td class="bar_bottm_right">7</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">3</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">5</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">8</td>
+<td class="bar_bottm_right">6</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.8</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">홍창범</td>
+<td class="bar_bottm_right">29</td>
+<td class="bar_bottm_right">12</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">6</td>
+<td class="bar_bottm_right">6</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">1</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">23</td>
+<td class="bar_bottm_right">30</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">15</td>
+<td class="bar_bottm_right">8</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">6</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.9</td>
+</tr>
+<tr>
+<td class="bar_bottm_right bold" height="13">홍현호</td>
+<td class="bar_bottm_right">30</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right">2</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right blue bold">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">1</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0</td>
+<td class="bar_bottm_right">0.0</td>
+<td class="bar_bottm_right"><span class="one-bgColor-yellow">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-red">0</span></td>
+<td class="bar_bottm_right"><span class="one-bgColor-gray">0</span></td>
+<td class="bar_bottm_right red bold">0</td>
+<td class="bar_bottm_right">6.6</td>
+</tr>
+</tbody>
+<fthfoot style="display: table-footer-group; border-spacing: 0px; height: 0px; border-collapse: collapse; visibility: hidden;"><fthtr style="display: table-row; border-spacing: 0px; height: 0px; border-collapse: collapse;"><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd><fthtd style="display: table-cell; height: 0px; width: auto;"></fthtd></fthtr></fthfoot></table></div>
+</div>
+</div>
+<div class="graph-style01" id="imsi" style="display: none">
+<canvas height="600" id="myChart" width="800"></canvas>
+</div>
+</div></div>
+</div>
+<!-- End -->
+</div>
+</div>
+<!-- 우측 전체 레이아웃(우측 메뉴 + 팀순위) -->
+<div class="sub-right" id="sub-right">
+<!-- 3차 트리 메뉴 -->
+<script>
+
+
+	/** 클릭한 메뉴 보임/숨김 처리 */
+
+	function setDisplayMenu(layerName, menuCd)
+	{
+		// 서브 메뉴 레이어 반전
+		
+		var subMenu = document.getElementById(layerName + '_' + menuCd);
+
+		if(subMenu != null)
+		{
+			var nowSubMenuDisply = subMenu.style.display;
+			
+			if(nowSubMenuDisply == 'none')
+			{
+				// 하위 메뉴 보임 
+				
+				subMenu.style.display = '';
+				
+				hiddenOtherMenu(layerName, menuCd);	// TODO::이외 메뉴 숨김 아직 구현안됨
+			}	
+			else if(nowSubMenuDisply == '')
+			{
+				// 하위 메뉴 숨김
+				
+				subMenu.style.display = 'none';
+			}
+			
+			toggleMenuIcon(layerName, menuCd);		// 메뉴 아이콘 반전
+		}
+	}
+
+	/** 메뉴 트리 아이콘 숨김/보임 처리 */
+
+	function toggleMenuIcon(layerName, menuCd)
+	{
+		// 메뉴 아이콘 반전
+
+		var subMenuIcon = document.getElementById(layerName + 'Icon_' + menuCd);
+
+		var nowIconClassName = subMenuIcon.className; 		
+		
+		if(!$("#" + layerName + 'Icon_' + menuCd).hasClass("on"))
+		{
+			// '+' 아이콘 표시
+			
+			$("#" + layerName + 'Icon_' + menuCd).addClass("on");
+		}
+		else
+		{
+			// '-' 아이콘 표시
+			
+			$("#" + layerName + 'Icon_' + menuCd).removeClass("on");
+		}
+	}
+
+	/** 현재 메뉴와 현재 메뉴가 속한 상위 메뉴 이외에 나머지 메뉴 숨김 처리 */
+
+	function hiddenOtherMenu(menuCd)
+	{
+		
+		
+	}
+
+
+</script>
+<!-- 우측 메뉴 토글 -->
+<div class="sub-rightTop">
+<div class="poT15 flR"><span class="img-txtSubmenu vaM">메뉴</span><a class="icon-btnsubHid ml10 show"></a></div>
+</div>
+<!-- // 3depth 메뉴 구조 // -->
+<div class="sub-right-menu mb30">
+<div class="menuTree-box">
+<span class="active" style="display:none">[0016], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0017, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [0, 1]</span>
+<ul class="nav-third-level" id="subMenuLayer_0016" style="display:">
+<li>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0017');"><span class="sub-arrow" id="subMenuLayerIcon_0017"></span>경기일정및정보</a>
+<span class="active" style="display:none">[0017], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0018, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [1, 2]</span>
+<ul class="nav-fourth-level collapse in" id="subMenuLayer_0017" style="display:none">
+<li>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0018');"><span class="sub-arrow" id="subMenuLayerIcon_0018"></span>오늘의경기</a>
+<span class="active" style="display:none">[0018], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0019, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0018" style="display:none">
+<li>
+<a href="javascript:moveMainFrame('0019');">경기일정 및 결과(달력)</a>
+<span class="active" style="display:none">[0018], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0296, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0296');">중계안내</a>
+<span class="active" style="display:none">[0017], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0024, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0024');"><span class="sub-arrow" id="subMenuLayerIcon_0024"></span>경기일정 및 결과</a>
+<span class="active" style="display:none">[0024], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0025, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0024" style="display:none">
+<li>
+<a href="javascript:moveMainFrame('0025');">K리그 1</a>
+<span class="active" style="display:none">[0024], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0026, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0026');">K리그 2</a>
+<span class="active" style="display:none">[0024], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0027, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0027');">K리그 주니어</a>
+<span class="active" style="display:none">[0016], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0029, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 1]</span>
+</li>
+</ul>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0029');"><span class="sub-arrow on" id="subMenuLayerIcon_0029"></span>기록실</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0030, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [1, 2]</span>
+<ul class="nav-fourth-level collapse in" id="subMenuLayer_0029" style="display:">
+<li>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0030');"><span class="sub-arrow" id="subMenuLayerIcon_0030"></span>선수정보</a>
+<span class="active" style="display:none">[0030], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0031, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0030" style="display:none">
+<li>
+<a href="javascript:moveMainFrame('0031');">선수정보</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0039, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0039');"><span class="sub-arrow" id="subMenuLayerIcon_0039"></span>K리그 1 기록</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0040, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0039" style="display:none">
+<li>
+<a class="nav-six-level" href="#" onclick="return false;">팀기록</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0340, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0340');">실시간 팀순위표</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0041, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0041');">팀순위표</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0043, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0043');">H/A 승률</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0044, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0044');">팀별 개인기록 및 상대전적</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0048, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0048');">팀경기 기록</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0049, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0049');">경고/퇴장 현황</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0050, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0050');">일자별 출장정지현황</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0052, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a class="nav-six-level" href="#" onclick="return false;">개인기록</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0053, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0053');">구단별 개인기록</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0054, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0054');">개인기록 순위</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0056, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0056');">경기별 개인기록</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0057, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0057');">경기별 선수평점</a>
+<span class="active" style="display:none">[0039], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0058, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0058');">라운드별 Best11</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0059, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0059');"><span class="sub-arrow on" id="subMenuLayerIcon_0059"></span>K리그 2 기록</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0060, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0059" style="display:">
+<li>
+<a class="nav-six-level" href="#" onclick="return false;">팀기록</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0061, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0061');">팀순위표</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0063, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0063');">H/A 승률</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0064, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0064');">팀별 개인기록 및 상대전적</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0068, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0068');">팀경기 기록</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0069, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0069');">경고/퇴장 현황</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0070, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0070');">일자별 출장정지현황</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0072, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a class="nav-six-level" href="#" onclick="return false;">개인기록</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0073, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a class="active" href="#">구단별 개인기록</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0074, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0074');">개인기록 순위</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0076, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0076');">경기별 개인기록</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0077, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0077');">경기별 선수평점</a>
+<span class="active" style="display:none">[0059], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0078, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0078');">라운드별 Best11</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0079, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0079');"><span class="sub-arrow" id="subMenuLayerIcon_0079"></span>K리그 PO 기록</a>
+<span class="active" style="display:none">[0079], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0080, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0079" style="display:none">
+<li>
+<a class="nav-six-level" href="#" onclick="return false;">팀기록</a>
+<span class="active" style="display:none">[0079], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0084, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0084');">팀별 개인기록 및 상대전적</a>
+<span class="active" style="display:none">[0079], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0088, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0088');">팀경기 기록</a>
+<span class="active" style="display:none">[0079], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0089, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0089');">경고/퇴장 현황</a>
+<span class="active" style="display:none">[0079], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0090, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0090');">일자별 출장정지현황</a>
+<span class="active" style="display:none">[0079], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0091, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0091');">경기기록부</a>
+<span class="active" style="display:none">[0079], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0092, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a class="nav-six-level" href="#" onclick="return false;">개인기록</a>
+<span class="active" style="display:none">[0079], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0093, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0093');">구단별 개인기록</a>
+<span class="active" style="display:none">[0079], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0094, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0094');">개인기록 순위</a>
+<span class="active" style="display:none">[0079], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0097, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0097');">경기별 선수평점</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0099, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0099');"><span class="sub-arrow" id="subMenuLayerIcon_0099"></span>프로축구 기록</a>
+<span class="active" style="display:none">[0099], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0100, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0099" style="display:none">
+<li>
+<a class="nav-six-level" href="#" onclick="return false;">팀기록</a>
+<span class="active" style="display:none">[0099], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0101, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0101');">팀순위표</a>
+<span class="active" style="display:none">[0099], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0103, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0103');">H/A 승률</a>
+<span class="active" style="display:none">[0099], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0104, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0104');">팀별 개인기록 및 상대전적</a>
+<span class="active" style="display:none">[0099], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0108, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0108');">팀경기 기록</a>
+<span class="active" style="display:none">[0099], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0110, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a class="nav-six-level" href="#" onclick="return false;">개인기록</a>
+<span class="active" style="display:none">[0099], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0111, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0111');">구단별 개인기록</a>
+<span class="active" style="display:none">[0099], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0112, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0112');">개인기록 순위</a>
+<span class="active" style="display:none">[0099], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0114, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0114');">경기별 개인기록</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0253, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0253');"><span class="sub-arrow" id="subMenuLayerIcon_0253"></span>리그컵</a>
+<span class="active" style="display:none">[0253], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0254, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0253" style="display:none">
+<li>
+<a href="javascript:moveMainFrame('0254');">팀순위표</a>
+<span class="active" style="display:none">[0253], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0255, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0255');">H/A승률</a>
+<span class="active" style="display:none">[0253], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0256, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0256');">팀경기 기록</a>
+<span class="active" style="display:none">[0253], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0257, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0257');">팀별 개인기록 및 상대전적</a>
+<span class="active" style="display:none">[0253], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0260, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0260');">경기별 개인기록</a>
+<span class="active" style="display:none">[0253], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0262, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0262');">개인기록 순위</a>
+<span class="active" style="display:none">[0253], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0266, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0266');">경기기록부</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0267, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0267');"><span class="sub-arrow" id="subMenuLayerIcon_0267"></span>시즌</a>
+<span class="active" style="display:none">[0267], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0269, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0267" style="display:none">
+<li>
+<a href="javascript:moveMainFrame('0269');">H/A승률</a>
+<span class="active" style="display:none">[0267], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0270, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0270');">팀경기 기록</a>
+<span class="active" style="display:none">[0267], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0271, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0271');">팀별 개인기록 및 상대전적</a>
+<span class="active" style="display:none">[0267], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0274, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0274');">경기별 개인기록</a>
+<span class="active" style="display:none">[0267], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0275, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0275');">개인경기 기록</a>
+<span class="active" style="display:none">[0267], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0278, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0278');">개인기록 순위</a>
+<span class="active" style="display:none">[0267], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0284, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0284');">경기기록부</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0117, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0117');"><span class="sub-arrow" id="subMenuLayerIcon_0117"></span>통산 기록</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0118, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0117" style="display:none">
+<li>
+<a class="nav-six-level" href="#" onclick="return false;">팀기록</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0119, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0119');">역대 통산전적</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0120, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0120');">H/A 승률</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0124, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a class="nav-six-level" href="#" onclick="return false;">개인기록</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0125, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0125');">구단별 개인기록</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0126, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0126');">개인기록 순위</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0128, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0128');">경기별 개인기록</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0131, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a class="nav-six-level" href="#" onclick="return false;">득점</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0133, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0133');">헤트트릭(득점)</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0134, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0134');">최장거리득점</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0135, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0135');">최단시간득점</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0139, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a class="nav-six-level" href="#" onclick="return false;">도움</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0142, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0142');">최단시간도움</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0143, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0143');">최다도움</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0144, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a class="nav-six-level" href="#" onclick="return false;">관중기록</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0145, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0145');">관중정보</a>
+<span class="active" style="display:none">[0117], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0147, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0147');">일자별관중추이</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0380, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0380');"><span class="sub-arrow" id="subMenuLayerIcon_0380"></span>K리그 주니어</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0381, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0380" style="display:none">
+<li>
+<a href="javascript:moveMainFrame('0381');">팀 순위표</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0382, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0382');">선수정보</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0383, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0383');">팀별 개인기록</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0384, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0384');">경기별 개인기록</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0385, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0385');">팀별 경기기록</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0386, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0386');">상대전적</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0387, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0387');">개인기록 순위</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0388, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0388');">일자별 팀순위</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0390, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0390');">경기일정</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0391, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0391');">경고/퇴장 현황</a>
+<span class="active" style="display:none">[0380], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0392, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0392');">출전정지현황</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0393, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0393');"><span class="sub-arrow" id="subMenuLayerIcon_0393"></span>K리그 유스 챔피언십</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0394, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0393" style="display:none">
+<li>
+<a href="javascript:moveMainFrame('0394');">팀 순위표</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0395, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0395');">선수정보</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0396, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0396');">팀별 개인기록</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0397, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0397');">경기별 개인기록</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0398, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0398');">팀별 경기기록</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0399, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0399');">상대전적</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0400, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0400');">개인기록 순위</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0402, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0402');">경기일정</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0403, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0403');">시상내역</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0404, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0404');">경고/퇴장 현황</a>
+<span class="active" style="display:none">[0393], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0405, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0405');">출전정지현황</a>
+<span class="active" style="display:none">[0029], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0241, Y], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 2]</span>
+</li>
+</ul>
+<a href="javascript:setDisplayMenu('subMenuLayer', '0241');"><span class="sub-arrow" id="subMenuLayerIcon_0241"></span>R리그</a>
+<span class="active" style="display:none">[0241], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0242, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [2, 3]</span>
+<ul class="nav-fifth-level collapse in" id="subMenuLayer_0241" style="display:none">
+<li>
+<a href="javascript:moveMainFrame('0242');">팀 순위표</a>
+<span class="active" style="display:none">[0241], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0244, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0244');">팀별 개인기록</a>
+<span class="active" style="display:none">[0241], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0245, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0245');">경기별 개인기록</a>
+<span class="active" style="display:none">[0241], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0246, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0246');">팀별 경기기록</a>
+<span class="active" style="display:none">[0241], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0248, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0248');">개인기록 순위</a>
+<span class="active" style="display:none">[0241], [0016, 0029, 0059]</span>
+<span class="active" style="display:none">[0250, N], [0016, 0029, 0059, 0073]</span>
+<span class="active" style="display:none"> [3, 3]</span>
+<a href="javascript:moveMainFrame('0250');">경기일정</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div><!-- 팀 순위표 -->
+<script>
+<!--
+
+	function toggleTeamRank()
+	{
+		var teamRankLayer1 = document.getElementById("teamRankLayer1");
+		var teamRankLayer2 = document.getElementById("teamRankLayer2");
+
+		var btnTeamRank1 = document.getElementById("btnTeamRank1"); 
+		var btnTeamRank2 = document.getElementById("btnTeamRank2"); 
+		
+		if(teamRankLayer1.style.display == 'none' && teamRankLayer2.style.display == '')
+		{
+			teamRankLayer1.style.display = '';
+			teamRankLayer2.style.display = 'none';
+			
+			btnTeamRank1.className = "current active";
+			btnTeamRank2.className = "";			
+		}		
+		else if(teamRankLayer1.style.display == '' && teamRankLayer2.style.display == 'none')
+		{
+			teamRankLayer1.style.display = 'none';
+			teamRankLayer2.style.display = '';
+
+			btnTeamRank1.className = "";			
+			btnTeamRank2.className = "current active";			
+		}		
+	}
+
+//-->
+</script>
+<div class="sub-right-team">
+<div class="sub-team-title">
+<h3>팀순위표</h3>
+<ul class="tab-team">
+<li class="current active" id="btnTeamRank1" onclick="toggleTeamRank();">
+								K리그 1
+							</li>
+<li class="" id="btnTeamRank2" onclick="toggleTeamRank();">
+								K리그 2
+							</li>
+</ul>
+</div>
+<div class="sub-team-list" id="teamRankLayer1">
+<table class="team-table">
+<colgroup>
+<col width="10px"/>
+<col width="40px"/>
+<col width="auto"/>
+<col width="50px"/>
+<col width="50px"/>
+<col width="10px"/>
+</colgroup>
+<thead>
+<tr>
+<td></td>
+<td>순위</td>
+<td>구단</td>
+<td>경기</td>
+<td>승점</td>
+<td></td>
+</tr>
+</thead>
+<tbody>
+<tr class="team-bg-color" onclick="javascript:fn_teamInfo('1', 'K01');">
+<td></td>
+<td class="team-font-color">1</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k01-sm.png"/>울산</td>
+<td>18</td>
+<td>36</td>
+<td></td>
+</tr>
+<tr class="team-bg-color" onclick="javascript:fn_teamInfo('1', 'K05');">
+<td></td>
+<td class="team-font-color">2</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k05-sm.png"/>전북</td>
+<td>18</td>
+<td>33</td>
+<td></td>
+</tr>
+<tr class="team-bg-color team-bg-line" onclick="javascript:fn_teamInfo('1', 'K02');">
+<td></td>
+<td class="team-font-color">3</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k02-sm.png"/>수원</td>
+<td>19</td>
+<td>33</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('1', 'K17');">
+<td></td>
+<td class="team-font-color02">4</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k17-sm.png"/>대구</td>
+<td>19</td>
+<td>33</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('1', 'K03');">
+<td></td>
+<td class="team-font-color02">5</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k03-sm.png"/>포항</td>
+<td>18</td>
+<td>27</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('1', 'K04');">
+<td></td>
+<td class="team-font-color02">6</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k04-sm.png"/>제주</td>
+<td>19</td>
+<td>22</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('1', 'K29');">
+<td></td>
+<td class="team-font-color02">7</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k29-sm.png"/>수원FC</td>
+<td>19</td>
+<td>21</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('1', 'K18');">
+<td></td>
+<td class="team-font-color02">8</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k18-sm.png"/>인천</td>
+<td>18</td>
+<td>20</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('1', 'K08');">
+<td></td>
+<td class="team-font-color02">9</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k08-sm.png"/>성남</td>
+<td>16</td>
+<td>17</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('1', 'K21');">
+<td></td>
+<td class="team-font-color02">10</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k21-sm.png"/>강원</td>
+<td>18</td>
+<td>17</td>
+<td></td>
+</tr>
+<tr class="team-bg-color-rowlank team-bg-line-rowlank" onclick="javascript:fn_teamInfo('1', 'K09');">
+<td></td>
+<td class="team-font-color02">11</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k09-sm.png"/>서울</td>
+<td>16</td>
+<td>16</td>
+<td></td>
+</tr>
+<tr class="team-bg-color-rowlank" onclick="javascript:fn_teamInfo('1', 'K22');">
+<td></td>
+<td class="team-font-color02">12</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k22-sm.png"/>광주</td>
+<td>18</td>
+<td>14</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sub-team-list" id="teamRankLayer2" style="display:none;">
+<table class="team-table">
+<colgroup>
+<col width="10px"/>
+<col width="40px"/>
+<col width="auto"/>
+<col width="50px"/>
+<col width="50px"/>
+<col width="10px"/>
+</colgroup>
+<thead>
+<tr>
+<td></td>
+<td>순위</td>
+<td>구단</td>
+<td>경기</td>
+<td>승점</td>
+<td></td>
+</tr>
+</thead>
+<tbody>
+<tr class="team-bg-color" onclick="javascript:fn_teamInfo('2', 'K07');">
+<td></td>
+<td class="team-font-color">1</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k07-sm.png"/>전남</td>
+<td>15</td>
+<td>26</td>
+<td></td>
+</tr>
+<tr class="team-bg-color-rowhank" onclick="javascript:fn_teamInfo('2', 'K27');">
+<td></td>
+<td class="team-font-color">2</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k27-sm.png"/>안양</td>
+<td>15</td>
+<td>25</td>
+<td></td>
+</tr>
+<tr class="team-bg-color-rowhank" onclick="javascript:fn_teamInfo('2', 'K10');">
+<td></td>
+<td class="team-font-color">3</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k10-sm.png"/>대전</td>
+<td>15</td>
+<td>24</td>
+<td></td>
+</tr>
+<tr class="team-bg-color-rowhank team-bg-line" onclick="javascript:fn_teamInfo('2', 'K20');">
+<td></td>
+<td class="team-font-color">4</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k20-sm.png"/>경남</td>
+<td>15</td>
+<td>21</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('2', 'K35');">
+<td></td>
+<td class="team-font-color02">5</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k35-sm.png"/>김천</td>
+<td>15</td>
+<td>21</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('2', 'K06');">
+<td></td>
+<td class="team-font-color02">6</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k06-sm.png"/>부산</td>
+<td>14</td>
+<td>20</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('2', 'K32');">
+<td></td>
+<td class="team-font-color02">7</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k32-sm.png"/>안산</td>
+<td>14</td>
+<td>19</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('2', 'K31');">
+<td></td>
+<td class="team-font-color02">8</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k31-sm.png"/>서울E</td>
+<td>14</td>
+<td>17</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('2', 'K34');">
+<td></td>
+<td class="team-font-color02">9</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k34-sm.png"/>충남아산</td>
+<td>12</td>
+<td>12</td>
+<td></td>
+</tr>
+<tr class="" onclick="javascript:fn_teamInfo('2', 'K26');">
+<td></td>
+<td class="team-font-color02">10</td>
+<td><img class="img-emble-reSize-24" src="/images/portal/img-emble-k26-sm.png"/>부천</td>
+<td>15</td>
+<td>11</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- // footer 레이아웃 // -->
+<!-- // 푸터 탭 //-->
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('ul.main-tab-team li').click(function(){
+			var tab_id = $(this).attr('data-tab');
+
+			$('ul.main-tab-team li').removeClass('active');
+			$('.tab-emblem').removeClass('current');
+
+			$(this).addClass('active');
+			$("#"+tab_id).addClass('current');
+		 });
+		  
+	  	//Check to see if the window is top if not then display button
+	  	$(window).scroll(function(){
+	  		if ($(this).scrollTop() > 0) {
+	  			$('.scrollToTop').fadeIn();
+	  		} else {
+	  			$('.scrollToTop').fadeOut();
+	  		}
+	  	});
+
+	  	//Click event to scroll to top
+	  	$('.scrollToTop').click(function(){
+	  		$('html, body').animate({scrollTop : 0},500);
+	  		return false;
+	  	});
+	});
+	</script>
+<div class="bottom-area">
+<div class="footer-area col-width pt50">
+<div class="main-notice-txt">
+<span class="main-notice-txt-title"><img class="pr10" src="/images/portal/img-main-cin.png"/>K리그 데이터 포털 사용에 대한 안내</span>
+<p>
+<!-- - 2018년도 일부 부가기록의 경우 K리그2는 21라운드부터 제공됩니다. 일부 연도별 누계 데이터가 데이터 항목의 상이함으로 표출되지 않을 수 있습니다.<br> -->
+					- 데이터 포탈 사이트에서 제공하고 있는 경기 <span style="color: red;">부가기록 데이터</span>는 경기데이터 공급업체에서 제공한 기록 입니다. <span style="color: red;">(공급업체 : Bepro11)</span><br/>
+					- 공식기록은 경기장에서 실시간으로 수집한 기록이고 부가기록은 영상기반으로 데이터를 수집한 것 입니다.<br/>
+					- 부가기록의 경우 K리그1은 실시간, K리그2은 24시간 이내에 업데이트됩니다.<br/>
+					- <span style="color: red;">공식기록과 부가기록의 경우 차이가 발생할 수 있습니다.</span><br/>
+					- 연도별 부가기록의 경우 기록 제공 업체의 변경에 따라 일부 기록 항목이 표출되지 않을 수 있습니다.<br/>
+<!-- - 데이터 포털 개선 작업으로 인해 2019 시즌 부가데이터 표출은 개막 후 2주 정도 소요될 예정입니다.<br> -->
+</p>
+</div>
+<div class="main-team-linkArea">
+<ul class="main-tab-team">
+<li class="current active" data-tab="tab02-1">
+						K리그 1
+					</li>
+<li class="" data-tab="tab02-2">
+						K리그 2
+					</li>
+</ul>
+</div>
+<div class="tab-emblem current" id="tab02-1">
+<ul>
+<li class="pl0"><a href="#"><img alt="전북" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K05');" src="/images/portal/img-emble-k05-sm.png"/></a></li>
+<li><a href="#"><img alt="울산" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K01');" src="/images/portal/img-emble-k01-sm.png"/></a></li>
+<li><a href="#"><img alt="포항" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K03');" src="/images/portal/img-emble-k03-sm.png"/></a></li>
+<li><a href="#"><img alt="대구" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K17');" src="/images/portal/img-emble-k17-sm.png"/></a></li>
+<li class=""><a href="#"><img alt="광주" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K22');" src="/images/portal/img-emble-k22-sm.png"/></a></li>
+<li><a href="#"><img alt="강원" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K21');" src="/images/portal/img-emble-k21-sm.png"/></a></li>
+<li><a href="#"><img alt="수원" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K02');" src="/images/portal/img-emble-k02-sm.png"/></a></li>
+<li><a href="#"><img alt="서울" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K09');" src="/images/portal/img-emble-k09-sm.png"/></a></li>
+<li><a href="#"><img alt="성남" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K08');" src="/images/portal/img-emble-k08-sm.png"/></a></li>
+<li class="pr0"><a href="#"><img alt="인천" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K18');" src="/images/portal/img-emble-k18-sm.png"/></a></li>
+<li><a href="#"><img alt="제주" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K04');" src="/images/portal/img-emble-k04-sm.png"/></a></li>
+<li class="pr0"><a href="#"><img alt="수원FC" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K29');" src="/images/portal/img-emble-k29-sm.png"/></a></li>
+</ul>
+</div>
+<div class="tab-emblem wid77px" id="tab02-2">
+<ul>
+<li><a href="#"><img alt="부산" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K06');" src="/images/portal/img-emble-k06-sm.png"/></a></li>
+<li class="pr0"><a href="#"><img alt="경남" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K20');" src="/images/portal/img-emble-k20-sm.png"/></a></li>
+<li><a href="#"><img alt="대전" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K10');" src="/images/portal/img-emble-k10-sm.png"/></a></li>
+<li class="pr0"><a href="#"><img alt="서울E" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K31');" src="/images/portal/img-emble-k31-sm.png"/></a></li>
+<li class="pr0"><a href="#"><img alt="전남" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('1', 'K07');" src="/images/portal/img-emble-k07-sm.png"/></a></li>
+<li class="pr0"><a href="#"><img alt="안산" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K32');" src="/images/portal/img-emble-k32-sm.png"/></a></li>
+<li class="pr0"><a href="#"><img alt="부천" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K26');" src="/images/portal/img-emble-k26-sm.png"/></a></li>
+<li class="pr0"><a href="#"><img alt="안양" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K27');" src="/images/portal/img-emble-k27-sm.png"/></a></li>
+<li><a href="#"><img alt="충남아산" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K34');" src="/images/portal/img-emble-k34-sm.png"/></a></li>
+<li class="pr0"><a href="#"><img alt="김천상무" class="img-emble-reSize-60" onclick="javascript:fn_teamInfo('2', 'K35');" src="/images/portal/img-emble-k35-sm.png"/></a></li>
+</ul>
+</div>
+<div class="footer-spocer">
+<a href="http://pr.kebhana.com/contents/kor/index.jsp" target="_blank"><img src="/images/portal/img-spon-hanabank.png" width="150"/></a>
+<a href="http://www.adidas.co.kr/" target="_blank"><img src="/images/portal/img-spon-adidas_blk.png" width="150"/></a>
+<a href="http://www.oilbank.co.kr/" target="_blank"><img src="/images/portal/img-spon-oilbank.png" width="150"/></a>
+<a href="http://www.easports.com/" target="_blank"><img src="/images/portal/img-spon-easports.png" width="50"/></a>
+<a href="http://mall.lottechilsung.co.kr/index.html" target="_blank"><img src="/images/portal/img-spon-getorade.png" width="150"/></a>
+<a href="http://www.interpark.com/malls/index.html" target="_blank"><img src="/images/portal/img-spon-interpark.png" width="150"/></a>
+</div>
+<div class="footer">
+<div class="footer-logo">
+<img alt="로고" src="/images/portal/img-footer-logo.png"/>
+</div>
+<div class="footer-sns">
+<a href="https://www.facebook.com/withKLEAGUE" target="_blank"><img alt="페이스북" src="/images/portal/img-footer-facebook.png"/></a>
+<a href="https://www.instagram.com/kleague/" target="_blank"><img alt="인스타그램" src="/images/portal/img-footer-instagram.png"/></a>
+<!-- <a href="#" onclick="window.open('https://www.facebook.com/withKLEAGUE','window_name','width=430,height=500,location=no,status=no,scrollbars=yes');return false;" target="_blank"><img src="/images/portal/img-footer-twitt.png" alt="트위터"></a> -->
+<a href="https://www.youtube.com/user/withkleague" target="_blank"><img alt="유투브" src="/images/portal/img-footer-youtob.png"/></a>
+<a href="https://post.naver.com/withkleague" target="_blank"><img alt="네이버 포스트" src="/images/portal/img-footer-naver.png"/></a>
+</div>
+<div class="footer-familysite">
+<p>FAMILY SITE</p>
+<a href="http://www.fifa.com/worldcup/" target="_blank"><img alt="fifa" src="/images/portal/img-footer-family01.png"/></a>
+<a href="http://www.the-afc.com/" target="_blank"><img alt="afc" src="/images/portal/img-footer-family02.png"/></a>
+<a href="http://www.kfa.or.kr" target="_blank"><img alt="협회" src="/images/portal/img-footer-family03.png"/></a>
+</div>
+<div class="cocyright">
+<p>한국프로축구연맹(이하 ‘연맹’이라 한다)에서 운영하는 본 K리그 포털 서비스(이하 ‘서비스’라고 한다)에서 제공하는 모든 기록 및 자료, 데이터들은 보도 목적을 제외하고는 연맹의 사전 허가 없이 복사, 저장, 배포, 판매할 수 없습니다. 기사 작성 혹은 보도 목적으로 사용할 경우 모든 정보는 재가공하여 활용되어야 합니다. 이를 위반할 경우 손해배상의 대상 또는 민형사상의 법적인 책임을 물을 수 있습니다.</p>
+<br/>
+<br/>
+<p>46, Gyeonghuigung-gil, Jongno-gu, Seoul, 110-062 Rep. of KOREA<br/>
+						Copyright K League. All rights reserved.
+					</p>
+</div>
+</div>
+</div>
+</div>
+<!-- top 버튼 -->
+<div class="top-btn-scroll">
+<a class="scrollToTop" href="#">
+<span class="top-btn-scroll-position">TOP</span>
+</a>
+</div>
+<!-- Loading Image -->
+<div class="loading-goal hidden" id="loading_goal">
+<div class="loading-goal-box">
+<img src="/images/portal/loading-goal.gif"/>
+<p>Loading...</p>
+</div>
+</div>
+<div aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible" role="log"></div><div class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" id="ui-datepicker-div"></div></body></html>
