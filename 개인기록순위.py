@@ -18,18 +18,6 @@ driver.find_element_by_xpath('//*[@id="teamId"]')
 
 soup = BeautifulSoup(driver.page_source, "html.parser")
 
-'''
-    private String pMg; // 최다득점선수
-    private String pMa; // 최다도움선수
-    private String pMap; // 최다공포선수
-    private String pMp; // 최다출장선수
-    
-    private int mostGoal; // 최다득점수
-    private int mostAs; // 최다도움수
-    private int mostAp; // 최다공격포인트수
-    private int mostPlayed; // 최다출장수
-'''
-
 pMg = ''
 pMa = ''
 pMap = ''
@@ -39,6 +27,7 @@ mostGoal = 0
 mostAs = 0
 mostAp = 0
 mostPlayed = 0
+
 
 def name(x):
     return {
@@ -54,9 +43,9 @@ for i in range(2, len(soup.select('#teamId > option')) + 1):
     soup = BeautifulSoup(driver.page_source, "html.parser")
 
     # c_id 추출
-    team_name = name(soup.select('#searchResult > div:nth-child(3) > p')[0].text)
+    c_id = name(soup.select('#searchResult > div:nth-child(3) > p')[0].text)
 
-    print(team_name)
+    print(c_id)
     driver.find_elements_by_xpath('//*[@id="record"]')
 
     '''
@@ -66,6 +55,8 @@ for i in range(2, len(soup.select('#teamId > option')) + 1):
         15. 출전
     
     '''
+
+    # 득점
     driver.find_element_by_xpath('//*[@id="record"]/option[{}]'.format(1)).click()
     time.sleep(1)
 
@@ -73,4 +64,63 @@ for i in range(2, len(soup.select('#teamId > option')) + 1):
 
     # 최다 득점 선수
     pMg = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child(1) > td:nth-child(2)')[0].text
+    mostGoal = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child(1) > td:nth-child(4)')[0].text
 
+    # 도움
+    driver.find_element_by_xpath('//*[@id="record"]/option[{}]'.format(2)).click()
+    time.sleep(1)
+
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+
+    # 최다 도움 선수
+    pMa = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child(1) > td:nth-child(2)')[0].text
+    mostAs = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child(1) > td:nth-child(4)')[0].text
+
+    # 공격포인트
+    driver.find_element_by_xpath('//*[@id="record"]/option[{}]'.format(3)).click()
+    time.sleep(1)
+
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+
+    # 최다 도움 선수
+    pMap = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child(1) > td:nth-child(2)')[0].text
+    mostAp = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child(1) > td:nth-child(4)')[0].text
+
+    # 출전
+    driver.find_element_by_xpath('//*[@id="record"]/option[{}]'.format(15)).click()
+    time.sleep(1)
+
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+
+    # 최다 출전 선수
+    pMp = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child(1) > td:nth-child(2)')[0].text
+    mostPlayed = soup.select('#tab-1 > div > div > table > tbody > tr:nth-child(1) > td:nth-child(4)')[0].text
+
+    print(pMp, mostGoal, pMa, mostAs, pMap, mostAp, pMp, mostPlayed)
+
+    # MySQL Connection 연결
+    conn = pymysql.connect(host='earlykross.cuopsz9nr7wp.ap-northeast-2.rds.amazonaws.com', user='ek',
+                           password='siattiger',
+                           db='earlykross', charset='utf8')
+
+    curs = conn.cursor()
+
+    # SQL문 실행
+    sql = 'insert into club_history(c_id, p_mg, most_goal, p_ma, most_as, p_map, most_ap, p_mp, most_played) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
+
+    curs.execute(sql, (int(c_id), pMg, int(mostGoal), pMa, int(mostAs), pMap, int(mostAp), pMp, int(mostPlayed)))
+    conn.commit()
+
+    conn.close()
+
+'''
+    private String pMg; // 최다득점선수
+    private String pMa; // 최다도움선수
+    private String pMap; // 최다공포선수
+    private String pMp; // 최다출장선수
+
+    private int mostGoal; // 최다득점수
+    private int mostAs; // 최다도움수
+    private int mostAp; // 최다공격포인트수
+    private int mostPlayed; // 최다출장수
+'''
