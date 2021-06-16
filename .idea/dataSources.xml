@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:mariadb://earlykross.cuopsz9nr7wp.ap-northeast-2.rds.amazonaws.com:3306/earlykross</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="earlykross@localhost" uuid="1fde4b63-ed6e-42f8-95d2-e3d3b3da4844">
+      <driver-ref>mariadb</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mariadb://localhost:3306/earlykross</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
